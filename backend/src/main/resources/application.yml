@@ -1,1 +1,12 @@
+spring:
+  jpa:
+    database: postgresql
+    hibernate:
+      ddl-auto: update # no overwrite / auto create
+    show-sql: true
 
+  datasource:
+    url: 
+    username: 
+    password: 
+    driver-class-name: org.postgresql.Driver
