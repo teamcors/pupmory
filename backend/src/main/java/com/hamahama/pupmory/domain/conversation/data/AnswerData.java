@@ -31,7 +31,7 @@ import javax.persistence.Entity;
 })
 public class AnswerData {
     @EmbeddedId
-    private AnswerDataId dataId;
+    private LineDataId dataId;
 
     private Long selection;
 
