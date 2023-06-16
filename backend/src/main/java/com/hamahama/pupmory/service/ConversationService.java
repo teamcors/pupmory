@@ -4,10 +4,13 @@ import com.hamahama.pupmory.domain.conversation.MetaData;
 import com.hamahama.pupmory.domain.conversation.MetaDataRepository;
 import com.hamahama.pupmory.domain.conversation.data.AnswerData;
 import com.hamahama.pupmory.domain.conversation.data.AnswerDataRepository;
+import com.hamahama.pupmory.domain.conversation.data.LineData;
+import com.hamahama.pupmory.domain.conversation.data.LineDataRepository;
 import com.hamahama.pupmory.domain.conversation.result.SetResultId;
 import com.hamahama.pupmory.domain.conversation.result.UserSetResult;
 import com.hamahama.pupmory.domain.conversation.result.UserSetResultRepository;
 import com.hamahama.pupmory.dto.AnswerResponseDto;
+import com.hamahama.pupmory.dto.LineResponseDto;
 import com.hamahama.pupmory.dto.SetResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,6 +31,7 @@ import java.util.List;
 public class ConversationService {
     private final UserSetResultRepository usrRepo;
     private final MetaDataRepository mdRepo;
+    private final LineDataRepository ldRepo;
     private final AnswerDataRepository adRepo;
 
     private final GptService gptService;
@@ -85,5 +89,18 @@ public class ConversationService {
         }
 
         return new ResponseEntity<AnswerResponseDto>(dto, HttpStatus.OK);
+    }
+
+    @Transactional
+    public ResponseEntity<List<LineResponseDto>> getLine(Long stage, Long set, Long id, Long selected) {
+        List<LineResponseDto> dtoList = new ArrayList<LineResponseDto>();
+
+        List<LineData> dataList = ldRepo.findAll(stage, set, id, selected);
+
+        for (LineData data : dataList) {
+            dtoList.add(new LineResponseDto(data));
+        }
+
+        return new ResponseEntity<List<LineResponseDto>>(dtoList, HttpStatus.OK);
     }
 }

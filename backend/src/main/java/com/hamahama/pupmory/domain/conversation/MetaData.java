@@ -25,5 +25,5 @@ public class MetaData {
     private String setName;
 
     @Column(nullable = false)
-    private Long totalQuestion;
+    private Long totalLine;
 }

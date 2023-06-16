@@ -15,7 +15,7 @@ import javax.persistence.Entity;
 
 /**
  * @author Queue-ri
- * @since 2023/06/04
+ * @since 2023/06/16
  */
 
 @Entity
@@ -29,16 +29,20 @@ import javax.persistence.Entity;
                 typeClass = StringArrayType.class
         )
 })
-public class AnswerData {
+public class LineData {
     @EmbeddedId
     private LineDataId dataId;
 
-    private Long selection;
+    @Column(nullable = false)
+    private String content;
 
-    @Column(nullable = false, columnDefinition="BOOLEAN DEFAULT false")
-    private Boolean isGptRequired;
+    @Column(nullable = false)
+    private String type;
 
     @Type(type = "string-array")
     @Column(columnDefinition = "text[]")
-    private String[] answer;
+    private String[] selectList; // 임시
+
+    private String buttonText;
+    private String placeholder;
 }
