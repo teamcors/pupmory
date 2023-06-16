@@ -11,5 +11,5 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class AnswerResponseDto {
-    private String answer;
+    private String[] answer;
 }

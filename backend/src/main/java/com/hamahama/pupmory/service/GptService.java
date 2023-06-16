@@ -18,7 +18,7 @@ public class GptService {
     private final ChatgptService chatgptService;
     private final GptAnswerDataRepository gptAdRepo;
 
-    public String getAnswer(Long stage, Long set, Long qid, String content) {
+    public String[] getAnswer(Long stage, Long set, Long qid, String content) {
         List<GptAnswerData> gptAnswerData = gptAdRepo.findAllByStageAndSetAndQuestionId(stage, set, qid);
         StringBuilder emotionBuilder = new StringBuilder();
 
@@ -51,6 +51,6 @@ public class GptService {
 
         String answer = chatgptService.sendMessage(prompt2).replace("\n", "");
 
-        return answer;
+        return new String[] {answer};
     }
 }
