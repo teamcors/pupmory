@@ -1,9 +1,6 @@
 package com.hamahama.pupmory.controller;
 
-import com.hamahama.pupmory.dto.AnswerRequestDto;
-import com.hamahama.pupmory.dto.AnswerResponseDto;
-import com.hamahama.pupmory.dto.SetRequestDto;
-import com.hamahama.pupmory.dto.SetResponseDto;
+import com.hamahama.pupmory.dto.*;
 import com.hamahama.pupmory.service.ConversationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -40,6 +37,21 @@ public class ConversationController {
                 answerRequestDto.getQuestionId(),
                 answerRequestDto.getType(),
                 answerRequestDto.getContent()
+        );
+    }
+
+    @GetMapping("/line")
+    public ResponseEntity<List<LineResponseDto>> getAnswer(@RequestBody LineRequestDto lineRequestDto) {
+        Long selected = -1L; // default
+        Long userSelected = lineRequestDto.getSelected();
+
+        if (userSelected != null) selected = userSelected;
+
+        return conversationService.getLine(
+                lineRequestDto.getStage(),
+                lineRequestDto.getSet(),
+                lineRequestDto.getLineId(),
+                selected
         );
     }
 }
