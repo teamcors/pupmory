@@ -28,6 +28,9 @@ dependencies {
 
 	// PostgreSQL
 	implementation group: 'org.postgresql', name:'postgresql', version: '42.6.0'
+
+	// ChatGPT
+	implementation 'io.github.flashvayne:chatgpt-spring-boot-starter:1.0.4'
 }
 
 tasks.named('test') {
