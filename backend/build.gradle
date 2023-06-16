@@ -28,6 +28,12 @@ dependencies {
 
 	// PostgreSQL
 	implementation group: 'org.postgresql', name:'postgresql', version: '42.6.0'
+
+	// Hibernate Type Support
+	implementation 'io.hypersistence:hypersistence-utils-hibernate-55:3.4.3'
+
+	// ChatGPT
+	implementation 'io.github.flashvayne:chatgpt-spring-boot-starter:1.0.4'
 }
 
 tasks.named('test') {

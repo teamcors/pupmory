@@ -10,3 +10,9 @@ spring:
     username: 
     password: 
     driver-class-name: org.postgresql.Driver
+
+chatgpt:
+  api-key: 
+  url: https://api.openai.com/v1/chat/completions
+  model: gpt-3.5-turbo
+  temperature: 0.5

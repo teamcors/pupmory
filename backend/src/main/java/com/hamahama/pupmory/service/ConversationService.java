@@ -2,12 +2,18 @@ package com.hamahama.pupmory.service;
 
 import com.hamahama.pupmory.domain.conversation.MetaData;
 import com.hamahama.pupmory.domain.conversation.MetaDataRepository;
+import com.hamahama.pupmory.domain.conversation.data.AnswerData;
+import com.hamahama.pupmory.domain.conversation.data.AnswerDataRepository;
 import com.hamahama.pupmory.domain.conversation.result.SetResultId;
 import com.hamahama.pupmory.domain.conversation.result.UserSetResult;
 import com.hamahama.pupmory.domain.conversation.result.UserSetResultRepository;
+import com.hamahama.pupmory.dto.AnswerResponseDto;
 import com.hamahama.pupmory.dto.SetResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +28,11 @@ import java.util.List;
 public class ConversationService {
     private final UserSetResultRepository usrRepo;
     private final MetaDataRepository mdRepo;
-    
+    private final AnswerDataRepository adRepo;
+
+    private final GptService gptService;
+
+    @Transactional
     public List<SetResponseDto> getAvailableSet(String uuid) {
         List<UserSetResult> resList = usrRepo.getLastTwoSet(uuid);
         List<MetaData> availableMeta = new ArrayList<MetaData>();
@@ -53,5 +63,27 @@ public class ConversationService {
             availableSet.add(new SetResponseDto(meta));
 
         return availableSet;
+    }
+
+    @Transactional
+    public ResponseEntity<AnswerResponseDto> getAnswer(String uuid, Long stage, Long set, Long qid, String type, String content) {
+        AnswerResponseDto dto;
+
+        if (type.equals("select")) { // 선택형
+            AnswerData answerData = adRepo.findSelectTypeAnswer(stage, set, qid, Long.parseLong(content));
+            dto = new AnswerResponseDto(answerData.getAnswer());
+        }
+        else if (type.equals("monologue")) { // 독백형 (원래 요청 보내면 안되는 case)
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        else { // 단답형, 장문형, 미디어형
+            AnswerData answerData = adRepo.findOtherTypeAnswer(stage, set, qid);
+            if (answerData.getIsGptRequired())
+                dto = new AnswerResponseDto(gptService.getAnswer(stage, set, qid, content));
+            else
+                dto = new AnswerResponseDto(answerData.getAnswer());
+        }
+
+        return new ResponseEntity<AnswerResponseDto>(dto, HttpStatus.OK);
     }
 }
