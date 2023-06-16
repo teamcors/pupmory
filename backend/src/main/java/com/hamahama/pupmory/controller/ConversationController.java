@@ -1,5 +1,7 @@
 package com.hamahama.pupmory.controller;
 
+import com.hamahama.pupmory.dto.AnswerRequestDto;
+import com.hamahama.pupmory.dto.AnswerResponseDto;
 import com.hamahama.pupmory.dto.SetRequestDto;
 import com.hamahama.pupmory.dto.SetResponseDto;
 import com.hamahama.pupmory.service.ConversationService;
@@ -27,5 +29,17 @@ public class ConversationController {
     @GetMapping("/set")
     public ResponseEntity<List<SetResponseDto>> getAvailableSet(@RequestBody SetRequestDto setRequestDto) {
         return new ResponseEntity<List<SetResponseDto>>(conversationService.getAvailableSet(setRequestDto.getUuid()), HttpStatus.OK);
+    }
+
+    @GetMapping("/answer")
+    public ResponseEntity<AnswerResponseDto> getAnswer(@RequestBody AnswerRequestDto answerRequestDto) {
+        return conversationService.getAnswer(
+                answerRequestDto.getUuid(),
+                answerRequestDto.getStage(),
+                answerRequestDto.getSet(),
+                answerRequestDto.getQuestionId(),
+                answerRequestDto.getType(),
+                answerRequestDto.getContent()
+        );
     }
 }
