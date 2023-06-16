@@ -13,12 +13,12 @@ public class SetResponseDto {
     private Long stage;
     private Long set;
     private String setName;
-    private Long totalQuestion;
+    private Long totalLine;
 
     public SetResponseDto(MetaData metaData) {
         this.stage = metaData.getMetaDataId().getStage();
         this.set = metaData.getMetaDataId().getSet();
         this.setName = metaData.getSetName();
-        this.totalQuestion = metaData.getTotalQuestion();
+        this.totalLine = metaData.getTotalLine();
     }
 }
