@@ -70,23 +70,11 @@ public class ConversationService {
     }
 
     @Transactional
-    public ResponseEntity<AnswerResponseDto> getAnswer(String uuid, Long stage, Long set, Long qid, String type, String content) {
+    public ResponseEntity<AnswerResponseDto> getAnswer(String uuid, Long stage, Long set, Long id, String uAns) {
         AnswerResponseDto dto;
 
-        if (type.equals("select")) { // 선택형
-            AnswerData answerData = adRepo.findSelectTypeAnswer(stage, set, qid, Long.parseLong(content));
-            dto = new AnswerResponseDto(answerData.getAnswer());
-        }
-        else if (type.equals("monologue")) { // 독백형 (원래 요청 보내면 안되는 case)
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        else { // 단답형, 장문형, 미디어형
-            AnswerData answerData = adRepo.findOtherTypeAnswer(stage, set, qid);
-            if (answerData.getIsGptRequired())
-                dto = new AnswerResponseDto(gptService.getAnswer(stage, set, qid, content));
-            else
-                dto = new AnswerResponseDto(answerData.getAnswer());
-        }
+        // dto = new AnswerResponseDto(gptService.getAnswer(stage, set, id, uAns)); // 레거시
+        dto = new AnswerResponseDto(gptService.getAnswer(stage, set, id, uAns));
 
         return new ResponseEntity<AnswerResponseDto>(dto, HttpStatus.OK);
     }
