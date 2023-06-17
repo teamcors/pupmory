@@ -3,6 +3,8 @@ package com.hamahama.pupmory.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.List;
+
 /**
  * @author Queue-ri
  * @since 2023/06/04
@@ -11,5 +13,5 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class AnswerResponseDto {
-    private String[] answer;
+    private List<String> answer;
 }

@@ -25,7 +25,7 @@ public class GptAnswerData {
     private Long gptAnswerDataId;
 
     @Column(nullable = false)
-    private Long questionId;
+    private Long lineId;
 
     @Column(nullable = false)
     private Long stage;

@@ -34,9 +34,8 @@ public class ConversationController {
                 answerRequestDto.getUuid(),
                 answerRequestDto.getStage(),
                 answerRequestDto.getSet(),
-                answerRequestDto.getQuestionId(),
-                answerRequestDto.getType(),
-                answerRequestDto.getContent()
+                answerRequestDto.getLineId(),
+                answerRequestDto.getUserAnswer()
         );
     }
 
