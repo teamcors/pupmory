@@ -16,7 +16,6 @@ public class AnswerRequestDto {
     private String uuid;
     private Long stage;
     private Long set;
-    private Long questionId;
-    private String type;
-    private String content;
+    private Long lineId;
+    private String userAnswer;
 }

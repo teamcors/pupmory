@@ -16,5 +16,5 @@ public class AnswerResultId implements Serializable {
     private String userUid;
     private Long stage;
     private Long set;
-    private Long questionId;
+    private Long lineId;
 }

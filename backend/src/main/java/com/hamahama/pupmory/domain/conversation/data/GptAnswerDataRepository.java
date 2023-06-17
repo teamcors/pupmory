@@ -10,6 +10,6 @@ import java.util.List;
  */
 
 public interface GptAnswerDataRepository extends JpaRepository<GptAnswerData, Long> {
-    //@Query(value = "SELECT * FROM answer_data WHERE stage = :stage AND set = :set AND question_id = :qid ;", nativeQuery = true)
-    List<GptAnswerData> findAllByStageAndSetAndQuestionId(Long stage, Long set, Long questionId);
+    //@Query(value = "SELECT * FROM answer_data WHERE stage = :stage AND set = :set AND line_id = :id ;", nativeQuery = true)
+    List<GptAnswerData> findAllByStageAndSetAndLineId(Long stage, Long set, Long id);
 }
