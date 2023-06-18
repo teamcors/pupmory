@@ -5,10 +5,7 @@ import com.hamahama.pupmory.service.ConversationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -23,12 +20,12 @@ import java.util.List;
 public class ConversationController {
     private final ConversationService conversationService;
 
-    @GetMapping("/set")
+    @PostMapping("/set")
     public ResponseEntity<List<SetResponseDto>> getAvailableSet(@RequestBody SetRequestDto setRequestDto) {
         return new ResponseEntity<List<SetResponseDto>>(conversationService.getAvailableSet(setRequestDto.getUuid()), HttpStatus.OK);
     }
 
-    @GetMapping("/answer")
+    @PostMapping("/answer")
     public ResponseEntity<AnswerResponseDto> getAnswer(@RequestBody AnswerRequestDto answerRequestDto) {
         return conversationService.getAnswer(
                 answerRequestDto.getUuid(),
@@ -39,7 +36,7 @@ public class ConversationController {
         );
     }
 
-    @GetMapping("/line")
+    @PostMapping("/line")
     public ResponseEntity<List<LineResponseDto>> getAnswer(@RequestBody LineRequestDto lineRequestDto) {
         Long selected = -1L; // default
         Long userSelected = lineRequestDto.getSelected();
