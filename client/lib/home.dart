@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
+// 홈 화면
 class HomePage extends StatefulWidget {
   static Future<void> navigatorPush(BuildContext context) async {
     return Navigator.push<void>(
@@ -27,23 +28,6 @@ class _HomePageState extends State<HomePage> {
   void dispose() async {
     super.dispose();
   }
-
-  ListTile _tile(String title, String subtitle) => ListTile(
-      title: Text(title),
-      subtitle: Text(subtitle),
-      leading: Image.network("https://randomuser.me/api/portraits/women/10.jpg")
-  );
-
-  Widget _buildList() => ListView(
-    children: [
-      _tile("안녕하세요", "반가워요"),
-    ],
-  );
-
-  ClipRRect _userImage(String url) => ClipRRect(
-      borderRadius: BorderRadius.circular(100),
-      child:Image.network(url)
-  );
 
   @override
   Widget build(BuildContext context) {
