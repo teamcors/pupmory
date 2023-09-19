@@ -3,8 +3,7 @@ package com.hamahama.pupmory.controller;
 import com.hamahama.pupmory.domain.memorial.Comment;
 import com.hamahama.pupmory.domain.memorial.UserLike;
 import com.hamahama.pupmory.domain.memorial.Post;
-import com.hamahama.pupmory.dto.memorial.CommentRequestDto;
-import com.hamahama.pupmory.dto.memorial.PostRequestDto;
+import com.hamahama.pupmory.dto.memorial.*;
 import com.hamahama.pupmory.service.MemorialService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +30,19 @@ public class MemorialController {
     @RequestMapping(method=RequestMethod.GET)
     public Optional<Post> getPost(@RequestHeader(value="Authorization") String uid, @RequestParam Long postId) {
         return memorialService.getPost(postId);
+    }
+
+    @GetMapping("/all")
+    public PostAllResponseDto getAllPost(@RequestHeader(value="Authorization") String uid) {
+        return memorialService.getAllPost(uid);
+    }
+
+    @GetMapping("/feed")
+    public List<FeedPostResponseDto> getFeed(@RequestParam Boolean filter, @RequestBody(required=false) FeedPostFilterRequestDto dto) {
+        if (filter)
+            return null;
+        else
+            return memorialService.getFeedByLatest();
     }
 
     @GetMapping("/like")
