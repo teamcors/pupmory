@@ -8,4 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 
 public interface ServiceUserRepository extends JpaRepository<ServiceUser, Long> {
+    ServiceUser findByUserUid(String uuid);
 }
