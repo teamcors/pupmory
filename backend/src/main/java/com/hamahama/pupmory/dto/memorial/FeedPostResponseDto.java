@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 /**
  * @author Queue-ri
  * @since 2023/09/19
@@ -18,4 +20,5 @@ public class FeedPostResponseDto {
     private String profileImage;
     private String image;
     private String title;
+    private LocalDateTime createdAt;
 }
