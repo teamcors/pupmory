@@ -38,7 +38,7 @@ public class MemorialService {
         List<Post> posts = postRepo.findAllByUserUid(uid);
         ServiceUser user = userRepo.findByUserUid(uid);
 
-        return new PostAllResponseDto(user.getNickname(), user.getProfileImage(), user.getPuppyName(), posts);
+        return new PostAllResponseDto(user.getNickname(), user.getProfileImage(), user.getPuppyName(), user.getPuppyType(), user.getPuppyAge(), posts);
     }
 
     @Transactional

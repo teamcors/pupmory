@@ -19,5 +19,7 @@ public class PostAllResponseDto {
     private String nickname;
     private String profileImage;
     private String puppyName;
+    private String puppyType;
+    private Integer puppyAge;
     private List<Post> posts;
 }
