@@ -37,12 +37,12 @@ public class MemorialController {
         return memorialService.getAllPost(uid);
     }
 
-    @GetMapping("/feed")
-    public List<FeedPostResponseDto> getFeed(@RequestParam Boolean filter, @RequestBody(required=false) FeedPostFilterRequestDto dto) {
+    @PostMapping("/feed")
+    public List<FeedPostResponseDto> getFeed(@RequestParam Boolean filter, @RequestHeader(value="Authorization") String uuid, @RequestBody(required=false) FeedPostFilterRequestDto dto) {
         if (filter)
-            return null;
+            return memorialService.getFeedByFilter(uuid, dto);
         else
-            return memorialService.getFeedByLatest();
+            return memorialService.getFeedByLatest(uuid);
     }
 
     @GetMapping("/like")
