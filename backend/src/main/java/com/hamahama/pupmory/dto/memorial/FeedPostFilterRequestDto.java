@@ -14,5 +14,5 @@ import lombok.NoArgsConstructor;
 @Getter
 public class FeedPostFilterRequestDto {
     private String type;
-    private String age;
+    private Integer age;
 }
