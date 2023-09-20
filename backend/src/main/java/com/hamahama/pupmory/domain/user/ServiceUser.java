@@ -34,9 +34,14 @@ public class ServiceUser {
 
     private String puppyName;
 
+    private String puppyType;
+
+    private Integer puppyAge;
+
     @Column(nullable = false)
     private Long conversationStatus;
 
+    // deprecated
     private String characterData;
 
     @Column(nullable = false)
