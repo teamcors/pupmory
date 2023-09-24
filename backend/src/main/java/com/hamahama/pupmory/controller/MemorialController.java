@@ -6,8 +6,11 @@ import com.hamahama.pupmory.domain.memorial.Post;
 import com.hamahama.pupmory.dto.memorial.*;
 import com.hamahama.pupmory.service.MemorialService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,9 +25,12 @@ import java.util.Optional;
 public class MemorialController {
     private final MemorialService memorialService;
 
-    @RequestMapping(method=RequestMethod.POST)
-    public void savePost(@RequestHeader(value="Authorization") String uid, @RequestBody PostRequestDto dto) {
-        memorialService.savePost(uid, dto);
+    @RequestMapping(method=RequestMethod.POST, consumes = {"multipart/form-data"})
+    public void savePost(@RequestHeader(value="Authorization") String uid,
+                         @RequestPart("json") PostRequestDto dto,
+                         @RequestPart("image") @Nullable List<MultipartFile> mfiles
+    ) throws IOException {
+        memorialService.savePost(uid, dto, mfiles);
     }
 
     @RequestMapping(method=RequestMethod.GET)
@@ -46,13 +52,13 @@ public class MemorialController {
     }
 
     @GetMapping("/like")
-    public Optional<UserLike> getLike(@RequestHeader(value="Authorization") String uid, @RequestParam Long postId) {
+    public boolean getLike(@RequestHeader(value="Authorization") String uid, @RequestParam Long postId) {
         return memorialService.getLike(uid, postId);
     }
 
     @PostMapping("/like")
-    public void saveLike(@RequestHeader(value="Authorization") String uid, @RequestParam Long postId) {
-        memorialService.saveLike(uid, postId);
+    public void processLike(@RequestHeader(value="Authorization") String uid, @RequestParam Long postId) {
+        memorialService.processLike(uid, postId);
     }
 
     @GetMapping("/comment")

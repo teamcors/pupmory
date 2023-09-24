@@ -16,3 +16,22 @@ chatgpt:
   url: https://api.openai.com/v1/chat/completions
   model: gpt-3.5-turbo
   temperature: 0.5
+
+cloud:
+  aws:
+    region: # s3 하위에 넣으면 작동 안함 (EC2 metadata error 발생)
+      static: 
+    s3:
+      bucket: 
+      credentials:
+        accessKey: 
+        secretKey: 
+    stack:
+      auto: false
+
+logging:
+  level:
+    com:
+      amazonaws:
+        util:
+          EC2MetadataUtils: error
