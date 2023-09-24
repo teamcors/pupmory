@@ -6,4 +6,5 @@ import java.util.Optional;
 
 public interface UserLikeRepository extends JpaRepository<UserLike, Long> {
     Optional<UserLike> findByUserUidAndPostId(String userUid, Long postId);
+    void deleteByUserUidAndPostId(String userUid, Long postId);
 }

@@ -90,16 +90,25 @@ public class MemorialService {
     }
 
     @Transactional
-    public Optional<UserLike> getLike(String uid, Long postId) { return likeRepo.findByUserUidAndPostId(uid, postId); }
+    public boolean getLike(String uid, Long postId) {
+        return likeRepo.findByUserUidAndPostId(uid, postId).isPresent();
+    }
 
     @Transactional
-    public void saveLike(String uid, Long postId) {
-        likeRepo.save(
-                UserLike.builder()
-                        .userUid(uid)
-                        .postId(postId)
-                        .build()
-        );
+    public void processLike(String uid, Long postId) {
+        Optional<UserLike> like = likeRepo.findByUserUidAndPostId(uid, postId);
+        
+        if (like.isPresent()) { // 이미 좋아요 한 상태
+            likeRepo.deleteByUserUidAndPostId(uid, postId);
+        }
+        else { // 좋아요 안한 상태
+            likeRepo.save(
+                    UserLike.builder()
+                            .userUid(uid)
+                            .postId(postId)
+                            .build()
+            );
+        }
     }
 
     @Transactional

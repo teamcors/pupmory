@@ -52,13 +52,13 @@ public class MemorialController {
     }
 
     @GetMapping("/like")
-    public Optional<UserLike> getLike(@RequestHeader(value="Authorization") String uid, @RequestParam Long postId) {
+    public boolean getLike(@RequestHeader(value="Authorization") String uid, @RequestParam Long postId) {
         return memorialService.getLike(uid, postId);
     }
 
     @PostMapping("/like")
-    public void saveLike(@RequestHeader(value="Authorization") String uid, @RequestParam Long postId) {
-        memorialService.saveLike(uid, postId);
+    public void processLike(@RequestHeader(value="Authorization") String uid, @RequestParam Long postId) {
+        memorialService.processLike(uid, postId);
     }
 
     @GetMapping("/comment")
