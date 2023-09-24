@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
+import java.util.List;
 
 /**
  * @author Queue-ri
@@ -23,9 +24,12 @@ public class PostRequestDto {
     private String hashtag;
     private boolean isPrivate;
 
-    public Post toEntity(String uid) {
+    public Post toEntity(String uid, List<String> fileUrlList) {
+        String fileUrlString = String.join(",", fileUrlList);
+
         return Post.builder()
                 .userUid(uid)
+                .image(fileUrlString)
                 .title(title)
                 .place(place)
                 .content(content)

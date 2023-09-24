@@ -4,10 +4,14 @@ import com.hamahama.pupmory.domain.memorial.*;
 import com.hamahama.pupmory.domain.user.*;
 import com.hamahama.pupmory.domain.user.ServiceUserRepository;
 import com.hamahama.pupmory.dto.memorial.*;
+import com.hamahama.pupmory.util.S3Uploader;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +21,7 @@ import java.util.Optional;
  * @since 2023/09/11
  */
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class MemorialService {
@@ -24,6 +29,7 @@ public class MemorialService {
     private final UserLikeRepository likeRepo;
     private final CommentRepository commentRepo;
     private final ServiceUserRepository userRepo;
+    private final S3Uploader s3Uploader;
 
     @Transactional
     public Optional<Post> getPost(Long id) {
@@ -71,8 +77,16 @@ public class MemorialService {
     }
 
     @Transactional
-    public void savePost(String uid, PostRequestDto dto) {
-        postRepo.save(dto.toEntity(uid));
+    public void savePost(String uid, PostRequestDto dto, List<MultipartFile> mfiles) throws IOException {
+        if (mfiles != null)
+            for (MultipartFile mfile : mfiles)
+                log.info("- image: " + mfile);
+
+        List<String> fileUrlList = new ArrayList<String>();
+        if (mfiles != null)
+            fileUrlList = s3Uploader.upload(mfiles, "memorial", uid);
+
+        postRepo.save(dto.toEntity(uid, fileUrlList));
     }
 
     @Transactional

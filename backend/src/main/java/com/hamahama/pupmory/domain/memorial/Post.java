@@ -29,6 +29,7 @@ public class Post {
     @Column(nullable = false)
     private String userUid;
 
+    @Column(columnDefinition = "TEXT")
     private String image;
 
     @Column(nullable = false)
