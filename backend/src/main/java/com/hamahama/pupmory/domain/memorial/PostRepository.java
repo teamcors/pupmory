@@ -36,4 +36,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             "WHERE post.user_uid != :userUid AND puppy_type = :puppyType AND puppy_age = :puppyAge AND is_private = false\n" +
             "ORDER BY created_at DESC;", nativeQuery = true)
     List<Post> findFilteredFeedByBoth(@Param("userUid") String uuid, @Param("puppyType") String type, @Param("puppyAge") Integer age);
+
+    List<Post> findByTitleContainingOrContentContaining(@Param("title") String titleKeyword, @Param("content") String contentKeyword);
 }
