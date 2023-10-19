@@ -3,11 +3,10 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hama/help/help_detail.dart';
-import 'package:hama/style.dart';
+import 'package:client/style.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'memorial_main0919.dart' as main;
+import 'memorial_main.dart' as main;
 import 'package:http/http.dart' as http;
 
 class MemorialDetailPage extends StatefulWidget {
@@ -272,8 +271,11 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          automaticallyImplyLeading: true,
-          backgroundColor: Colors.transparent,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios_rounded, color: Colors.black),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          backgroundColor: Color(0xffF3F3F3),
           elevation: 0.0,
           iconTheme: IconThemeData(color: Colors.black),
           actions: [
@@ -300,7 +302,7 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
               children: <Widget>[
                 Container(
                   width: Get.width,
-                  height: 575,
+                  //height: 576,
                   color: Colors.white,
                   child:
                   Column(
@@ -336,8 +338,8 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
                                 Row(
                                   children: [
                                     Container(
-                                      width: 25,
-                                      height: 25,
+                                      width: 19,
+                                      height: 19,
                                       child: InkWell(
                                         onTap: (){},
                                         child: SvgPicture.asset(
@@ -349,8 +351,8 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
                                     SizedBox( width: 10,),
                                     if(hearts >= 1)...[
                                       Container(
-                                        width: 30,
-                                        height: 30,
+                                        width: 24,
+                                        height: 24,
                                         child: InkWell(
                                           onTap: (){
                                             // 좋아요 누르기
@@ -366,8 +368,8 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
                                         ),),
                                     ] else...[
                                       Container(
-                                        width: 30,
-                                        height: 30,
+                                        width: 24,
+                                        height: 24,
                                         child: InkWell(
                                           onTap: (){
                                             // 좋아요 누르기
@@ -397,13 +399,15 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
                                 Text(parsedResponseCN['title'],style: textStyle.bk16bold,),
                                 SizedBox(height: 5,),
                                 Container(width: Get.width,
-                                  height: 50,
-                                  child: Text(parsedResponseCN['content']),
+                                  //height: 30,
+                                  child: Text(parsedResponseCN['content'], style: textStyle.bk14normal,),
                                 ),
+                                SizedBox(height: 5,),
                                 Container(width: Get.width,
                                   height: 10,
                                   child: Text('#${parsedResponseCN['hashtag']}', style: textStyle.grey12normal),
                                 ),
+                                SizedBox(height: 5,),
                               ],
                             ),
                           ],
@@ -424,7 +428,7 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
                             for(int i=0; i<parsedResponseCM.length; i++)...[
                               Container(
                                 padding: EdgeInsets.fromLTRB(15, 15, 15, 15),
-                                height: 80,
+                                height: 90,
                                 width: Get.width,
                                 decoration: BoxDecoration(
                                   color: Colors.white,
@@ -435,13 +439,13 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
                                   children: [
                                     Row(
                                       children: [
-                                        Text(parsedResponseCM[i]['userUid']),
+                                        Text(parsedResponseCM[i]['userUid'], style: textStyle.bk12normal,),
                                       ],
                                     ),
                                     SizedBox(height: 5,),
-                                    Text(parsedResponseCM[i]['content']),
+                                    Text(parsedResponseCM[i]['content'], style: textStyle.bk12normal,),
                                     SizedBox(height: 5,),
-                                    Text(DateFormat('MM/dd  HH:mm').format(DateTime.parse(parsedResponseCM[i]['createdAt'])).toString(), style: TextStyle(fontSize: 9),)
+                                    Text(DateFormat('MM/dd  HH:mm').format(DateTime.parse(parsedResponseCM[i]['createdAt'])).toString(), style: TextStyle(fontSize: 10),)
 
                                     //DateFormat('yy/MM/dd - HH:mm:ss').format(parsedResponse[0]['createdAt'])
                                   ],

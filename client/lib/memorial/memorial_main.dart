@@ -3,14 +3,12 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hama/memorial/watch_others_memorial_list.dart';
-import 'package:hama/memorial/write_memorial.dart';
-import 'package:hama/style.dart';
+import 'package:client/memorial/write_memorial.dart';
+import 'package:client/style.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'memorial_detail.dart';
-import 'testiamge.dart';
 import 'watch_others.dart';
 
 class MemorialMain0919Page extends StatefulWidget {
