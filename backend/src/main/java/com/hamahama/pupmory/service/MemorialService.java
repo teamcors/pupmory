@@ -4,6 +4,7 @@ import com.hamahama.pupmory.domain.memorial.*;
 import com.hamahama.pupmory.domain.user.*;
 import com.hamahama.pupmory.domain.user.ServiceUserRepository;
 import com.hamahama.pupmory.dto.memorial.*;
+import com.hamahama.pupmory.pojo.PostMeta;
 import com.hamahama.pupmory.util.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,16 +33,21 @@ public class MemorialService {
     private final S3Uploader s3Uploader;
 
     @Transactional
-    public Optional<Post> getPost(Long id) {
-        return postRepo.findById(id);
+    public PostDetailResponseDto getPost(Long id) {
+        Post post = postRepo.findById(id).get();
+        return PostDetailResponseDto.of(post);
     }
 
     @Transactional
     public PostAllResponseDto getAllPost(String uid) {
         List<Post> posts = postRepo.findAllByUserUid(uid);
+        List<PostMeta> postMetas = new ArrayList<>();
+        for (Post post : posts)
+            postMetas.add(PostMeta.of(post));
+
         ServiceUser user = userRepo.findByUserUid(uid);
 
-        return new PostAllResponseDto(user.getNickname(), user.getProfileImage(), user.getPuppyName(), user.getPuppyType(), user.getPuppyAge(), posts);
+        return new PostAllResponseDto(user.getNickname(), user.getProfileImage(), user.getPuppyName(), user.getPuppyType(), user.getPuppyAge(), postMetas);
     }
 
     @Transactional

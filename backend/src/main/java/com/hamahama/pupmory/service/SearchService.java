@@ -75,6 +75,22 @@ public class SearchService {
     }
 
     @Transactional
+    public void deleteSearchHistory(String uid, String keyword) {
+        SearchHistory history = historyRepo.findSearchHistoryByUserUidAndKeyword(uid, keyword);
+        if (history != null) {
+            if (history.getUserUid().equals(uid)) {
+                historyRepo.deleteByUserUidAndKeyword(uid, keyword);
+            }
+            else {
+                // 4xx error
+            }
+        }
+        else {
+            // 4xx error
+        }
+    }
+
+    @Transactional
     public List<KeywordRank> getKeywordRank() {
         return rankRepo.findTop10ByOrderByCountDescUpdatedAtDesc();
     }

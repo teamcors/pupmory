@@ -1,6 +1,6 @@
 package com.hamahama.pupmory.dto.memorial;
 
-import com.hamahama.pupmory.domain.memorial.Post;
+import com.hamahama.pupmory.pojo.PostMeta;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,5 +21,5 @@ public class PostAllResponseDto {
     private String puppyName;
     private String puppyType;
     private Integer puppyAge;
-    private List<Post> posts;
+    private List<PostMeta> posts;
 }

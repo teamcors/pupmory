@@ -39,10 +39,16 @@ public class Help {
     @Column(nullable = false)
     private String content;
 
+    @Column(columnDefinition = "TEXT")
     private String answer;
 
-    @ColumnDefault("false")
-    private Boolean isFromUserReadAnswer;
+    /*
+    * 0: 도움을 보냄
+    * 1: 답변이 왔는데 안읽음
+    * 2: 답변 읽음
+    */
+    @ColumnDefault("0")
+    private Integer isFromUserReadAnswer;
 
     @CreatedDate
     private LocalDateTime createdAt;
