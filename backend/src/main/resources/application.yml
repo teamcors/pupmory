@@ -11,6 +11,12 @@ spring:
     password: 
     driver-class-name: org.postgresql.Driver
 
+server:
+  servlet:
+    multipart:
+      maxFileSize: 20MB # 개별 파일의 사이즈 제한
+      maxRequestSize: 180MB # 한 request의 사이즈 제한
+
 chatgpt:
   api-key: 
   url: https://api.openai.com/v1/chat/completions
@@ -28,6 +34,9 @@ cloud:
         secretKey: 
     stack:
       auto: false
+
+jwt:
+  secret:
 
 logging:
   level:
