@@ -1,23 +1,17 @@
 import 'package:flutter_svg/svg.dart';
-import 'package:client/sign/sign_up2.dart';
 import 'package:client/style.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-
-import 'package:http/http.dart';
-//import 'package:petlose/sign/logintest2.dart';
-import 'package:client/sign/google_log_in.dart';
-//import 'package:petlose/start/start1.dart';
-import 'package:client/firebase_options.dart';
-//import 'package:firebase_auth/firebase_auth.dart';
-
-import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
+import 'package:http/http.dart' as http;
+import 'package:google_sign_in/google_sign_in.dart';
 import '../screen.dart';
+import 'password_reset.dart';
+import 'sign_up2.dart';
 
-String uuid = "axNNnzcfJaSiTPI6kW23G2Vns9o1";
+String userAccessToken = "";
+
 class SignInPage extends StatefulWidget {
   @override
   State<SignInPage> createState() => _SignInPageState();
@@ -45,8 +39,6 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   //flutter_secure_storage 사용을 위한 초기화 작업
-
-
   // 로그인 버튼 누르면 실행
   // loginAction(accountName, password) async {
   //   try {
@@ -85,125 +77,116 @@ class _SignInPageState extends State<SignInPage> {
     });
   }
 
-  /// 토큰 뽑아오기1
-  // Future<Details> getDetails() async {
-  //   String bearer = await FirebaseAuth.instance.currentUser!.getIdToken();
-  //   print("Bearer: " + bearer.toString());
-  //   String token = "Bearer ${bearer}";
-  //   var apiUrl = Uri.parse('Your url here');
-  //
-  //   final response = await http.get(apiUrl, headers: {
-  //     'Authorization' : '${token}'
-  //   });
-  //
-  //   final responseJson = jsonDecode(response.body);
-  //
-  //   return Details.fromJson(responseJson);
-  // }
 
-  // /// 토큰 뽑아오기2
-  // var token = FirebaseAuth.instance.currentUser?.getIdToken();
-  // //var response = httpClient.get(url,headers: {'Authorization':"Bearer $token"});
-  //
-  //
-  //
-  // /// 회원가입, 로그인시 사용자 영속
-  // void authPersistence() async{
-  //   await FirebaseAuth.instance.setPersistence(Persistence.NONE);
-  // }
+  late Map<String, dynamic> parsedResponseAT; // 액세스 토큰
 
+  // 로그인 토큰 발급해오기
+  void fetchSignInToken(String fToken) async {
+    // API 엔드포인트 URL
+    print("받토:" + fToken);
+    String apiUrl = 'http://3.38.1.125:8080/signin/token'; // 실제 API 엔드포인트로 변경하세요
 
+    // 헤더 정보 설정
+    Map<String, String> headers = {
+      'X-Firebase-Token': fToken, // 예: 인증 토큰을 추가하는 방법
+      'Content-Type': 'application/json', // 예: JSON 요청인 경우 헤더 설정
+      'Accept': '*/*'
+    };
 
-  /// 로그인
-  // Future<void> signIn(String email, String pw) async{
-  //   try {
-  //     UserCredential credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-  //         email: email,
-  //         password: pw
-  //     );
-  //     if (credential.user != null) {
-  //       print("테스트 한번만..ㅠ");
-  //       print(credential);
-  //       print(credential.user!.uid);
-  //     }
-  //     // final userCredential = await FirebaseAuth.instance
-  //     //     .signInWithEmailAndPassword(
-  //     //     email: email,
-  //     //     password: pw) //아이디와 비밀번호로 로그인 시도
-  //     //     .then((value) {
-  //     //   print(value);
-  //     //   print("테스트확인좀^^");
-  //     //   value.user!.emailVerified == true //이메일 인증 여부
-  //     //       ? Navigator.push(context,
-  //     //       MaterialPageRoute(builder: (_) => logintest2Page(title: 'test',)))
-  //     //       : print('이메일 확인 안댐');
-  //     //   return value;
-  //     // });
-  //   } on FirebaseAuthException catch (e) {
-  //     //로그인 예외처리
-  //     if (e.code == 'user-not-found') {
-  //       print('등록되지 않은 이메일입니다');
-  //     } else if (e.code == 'wrong-password') {
-  //       print('비밀번호가 틀렸습니다');
-  //     } else {
-  //       print(e.code);
-  //     }
-  //
-  //   }
-  //
-  //   //print(credential);
-  //   // try {
-  //   //   final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-  //   //       email: email,
-  //   //       password: pw
-  //   //   );
-  //   // } on FirebaseAuthException catch (e) {
-  //   //   if (e.code == 'user-not-found') {
-  //   //     print('No user found for that email.');
-  //   //   } else if (e.code == 'wrong-password') {
-  //   //     print('Wrong password provided for that user.');
-  //   //   }
-  //   // } catch (e) {
-  //   //   print(e);
-  //   //   return false;
-  //   // }
-  //   authPersistence(); // 인증 영속
-  //
-  //   User user = await FirebaseAuth.instance.currentUser!;
-  //   String idToken;
-  //   try {
-  //     ///String tokenResult = await user.getIdToken();
-  //     // Send token to your backend via HTTPS
-  //     /// 이건 규리 언니가 해준 부분
-  //     print("토큰 결과:");
-  //     ///print(tokenResult); // 이거를 서버로 전달하세요
-  //
-  //   } catch (e) {
-  //     // Handle error
-  //     print('Error: $e');
-  //   }
-  //   // return true;
-  // }
+    // HTTP GET 요청 보내기
+    var response = await http.get(
+      Uri.parse(apiUrl),
+      headers: headers, // 헤더 추가
+    );
 
+    // HTTP 응답 상태 확인
+    if (response.statusCode == 200) {
+      // 응답 데이터 처리
+      print('서버로부터 받은 내용 데이터: ${response.body}');
+      var jsonResponse = utf8.decode(response.bodyBytes);
 
+      parsedResponseAT = json.decode(jsonResponse);
 
-  // Future<void> signIn(String email, String password) async {
-  //   if (_form.currentState!.validate()) {
-  //     print(email);
-  //     await FirebaseAuth.instance
-  //         .signInWithEmailAndPassword(email: email, password: password)
-  //         .then((uid) => {
-  //       //Fluttertoast.showToast(msg: "Login Successfully"),
-  //       // Navigator.of(context)
-  //       //     .pushReplacementNamed(UploadScreen.routeName),
-  //     }).onError((e, s) {
-  //       print("");
-  //       // Fluttertoast.showToast(msg: 'Incorrect Email or Password.',
-  //       //     toastLength: Toast.LENGTH_LONG
-  //       // );
-  //     });
-  //   }
-  // }
+      userAccessToken = parsedResponseAT['accessToken']; // 액세스 토큰을 전역변수에 저장 -> 다른 파일에서도 사용
+      print("accessToken:" + userAccessToken);
+
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => MyScreenPage(title: '스크린 페이지',)));
+
+      fetchUserInfo(userAccessToken);
+
+    } else {
+      // 요청이 실패한 경우 오류 처리
+      print('HTTP 요청 실패: ${response.statusCode}');
+    }
+  }
+
+  late Map<String, dynamic> parsedResponseUser; // 사용자 정보
+
+  // 사용자 정보 조회 : 대화하기가 1이면 인트로 아니면 그냥 홈으로 이동
+  void fetchUserInfo(String aToken) async {
+    // API 엔드포인트 URL
+    print("받토:" + aToken);
+    String apiUrl = 'http://3.38.1.125:8080/user/info'; // 실제 API 엔드포인트로 변경하세요
+
+    // 헤더 정보 설정
+    Map<String, String> headers = {
+      'Authorization': 'Bearer $aToken', // 예: 인증 토큰을 추가하는 방법
+      'Content-Type': 'application/json', // 예: JSON 요청인 경우 헤더 설정
+    };
+
+    // HTTP GET 요청 보내기
+    var response = await http.get(
+      Uri.parse(apiUrl),
+      headers: headers, // 헤더 추가
+    );
+
+    // HTTP 응답 상태 확인
+    if (response.statusCode == 200) {
+      // 응답 데이터 처리
+      print('서버로부터 받은 내용 데이터(사용자 정보): ${response.body}');
+      var jsonResponse = utf8.decode(response.bodyBytes);
+
+      parsedResponseUser = json.decode(jsonResponse);
+
+    } else {
+      // 요청이 실패한 경우 오류 처리
+      print('HTTP 요청 실패: ${response.statusCode}');
+    }
+  }
+
+  @override
+  Future<void> resetPassword(String email) async {
+    await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+  }
+
+  // 구글 로그인
+  Future<UserCredential> signInWithGoogle() async {
+    // Trigger the authentication flow
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+
+    // Create a new credential
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
+
+    //print("google~: " + credential.);
+
+    final UserCredential authResult = await FirebaseAuth.instance.signInWithCredential(credential);
+    final User? user = authResult.user;
+
+    fetchSignInToken(user!.uid);
+
+    // Once signed in, return the UserCredential
+    return await FirebaseAuth.instance.signInWithCredential(credential);
+  }
+
 
 
   @override
@@ -211,6 +194,7 @@ class _SignInPageState extends State<SignInPage> {
     MediaQueryData deviceData = MediaQuery.of(context);
     Size screenSize = deviceData.size;
     return Container(
+      padding: const EdgeInsets.all(16.0),
       color: Color(0xffDDE7FD),
       child: Scaffold(
         body: SingleChildScrollView(
@@ -225,15 +209,20 @@ class _SignInPageState extends State<SignInPage> {
                   'assets/images/logo/pupmory_logo3.svg',
                 ),
               ),
-              SizedBox(height: 15,),
-              Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: TextField(
+              SizedBox(height: 32,),
+
+              Container(
+                width: screenSize.width,
+                height: 44,
+                child: TextFormField(
                   controller: idController,
+                  style: textStyle.bk16normal,
                   decoration: InputDecoration(
+                    border: InputBorder.none,
                     filled: true,
                     fillColor: Color(0xffEEF3FE),
-                    labelText: '이메일',
+                    hintText: '이메일',
+                    hintStyle: textStyle.grey16normal,
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(width: 1, color: Colors.white), //<-- SEE HERE
                       borderRadius: BorderRadius.circular(12.0),
@@ -241,15 +230,21 @@ class _SignInPageState extends State<SignInPage> {
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: TextField(
+              SizedBox(height: 16,),
+
+              Container(
+                width: screenSize.width,
+                height: 44,
+                child: TextFormField(
                   obscureText: true,
                   controller: passwordController,
+                  style: textStyle.bk16normal,
                   decoration: InputDecoration(
+                    border: InputBorder.none,
                     filled: true,
                     fillColor: Color(0xffEEF3FE),
-                    labelText: '비밀번호',
+                    hintText: '비밀번호',
+                    hintStyle: textStyle.grey16normal,
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(width: 1, color: Colors.white), //<-- SEE HERE
                       borderRadius: BorderRadius.circular(12.0),
@@ -257,75 +252,91 @@ class _SignInPageState extends State<SignInPage> {
                   ),
                 ),
               ),
-              // SizedBox( // SizedBox 대신 Container를 사용 가능
-              //   width: 240,
-              //   height: 32,
-              //   child: FilledButton(
-              //     onPressed: () {},
-              //     child: Text('로그인'),
-              //     style: ButtonStyle(
-              //       //backgroundColor: Color(0x5A9679)
-              //     ),
-              //   ),
-              // ),
 
-              SizedBox(height: 35,),
+              SizedBox(height: 32,),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Container(width: 328,
-                    child: ElevatedButton(onPressed: (){
+                  Container(
+                    width: screenSize.width,
+                    height: 44,
+                    child: ElevatedButton(onPressed: ()async{
+
+                      try{
+                        UserCredential credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+                            email: idController.text,
+                            password: passwordController.text
+                        );
+
+                        if (credential.user != null) {
+                          print("테스트");
+                          print(credential);
+                          print(credential.user!.uid);
+
+                          fetchSignInToken(credential.user!.uid);
+
+                          print("okay");
+
+                        }
+
+                        User user = await FirebaseAuth.instance.currentUser!;
+                        IdTokenResult tokenResult = await user.getIdTokenResult();
+                        String? token = tokenResult?.token;
+                        // Send token to your backend via HTTPS
+                        /// 규리 언니가 해준 부분
+                        print("토큰 결과:");
+                        print(token); // 이거를 서버로 전달하세요
+
+                        print("login Success");
+
+                        // Navigator.push(context,
+                        //     MaterialPageRoute(builder: (_) => const Start1Page(title: "시작 페이지")));
+
+                      } on FirebaseAuthException catch(e){
+                        print('an error occured $e');
+                      }
+
+                    },
+                        style: buttonChart().signInbtn,
+                        child: Text("로그인", style: textStyle.white16semibold,)
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: (){
+                      //PasswordResetPage
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => MyScreenPage(title: '스크린 페이지',)));
+                              builder: (context) => PasswordResetPage()));
                     },
-                        style: buttonChart().signInbtn,
-                        child: Text("로그인", style: textStyle.white16normal,)
-                    ),
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(width: 100,),
-                      TextButton(
-                        onPressed: (){
-                        },
-                        child: Text("아이디 찾기", style: textStyle.bk14normal),),
-                      SizedBox(width: 10,),
-                      Container(width: 2, height: 14, color: Colors.black12,),
-                      SizedBox(width: 10,),
-                      TextButton(
-                        onPressed: (){
-                        },
-                        child: Text("비밀번호 찾기", style: textStyle.bk14normal),),
-
-                    ],
-                  ),
+                    child: Text("비밀번호를 잊으셨나요?", style: textStyle.bk12normal),),
                 ],
               ),
 
-              SizedBox(height: 105,),
-              Container(width: 328,
+              SizedBox(height: 162,),
+              Container(
+                height: 44,
+                width: screenSize.width,
                 child: ElevatedButton(onPressed: (){
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const SignInDemo()));
+                  signInWithGoogle();
                 },
-                    style: buttonChart().whitebtn,
+                    style: buttonChart().whitebtn2,
                     child: Row(
                       children: [
                         SizedBox(width: 65,),
-                        Image.asset('assets/images/logo/google_logo.png'),
+                        SvgPicture.asset(
+                          'assets/images/sign/google_logo.svg',
+                        ),
                         SizedBox(width: 15,),
-                        Text("Google 계정으로 로그인", style: textStyle.bk16normal,)
+                        Text("Google 계정으로 로그인", style: textStyle.bk16midium,)
                       ],
                     )
                 ),
               ),
-              SizedBox(height: 15,),
-              Container(width: 328,
+              SizedBox(height: 16,),
+              Container(
+                height: 44,
+                width: screenSize.width,
                 child: ElevatedButton(onPressed: (){
                   Navigator.push(
                       context,
@@ -333,28 +344,9 @@ class _SignInPageState extends State<SignInPage> {
                           builder: (context) => SignUpPage()));
                 },
                     style: buttonChart().bluebtn,
-                    child: Text("이메일로 회원가입", style: textStyle.bk16normal,)
+                    child: Text("이메일로 회원가입", style: textStyle.bk16midium,)
                 ),
               ),
-
-              // Padding(
-              //   padding: const EdgeInsets.all(16.0),
-              //   child:
-              //   ElevatedButton(onPressed: (){
-              //     Navigator.push(context,
-              //         MaterialPageRoute(builder: (_) => logintest2Page(title: 'test',)));
-              //   },
-              //       child: Text("회원가입")),
-              // ),
-              //
-              // Padding(
-              //   padding: const EdgeInsets.all(16.0),
-              //   child: ElevatedButton(onPressed: (){
-              //     Navigator.push(context,
-              //         MaterialPageRoute(builder: (_) => const SignInDemo()));
-              //   },
-              //       child: Text("구글 계정으로 로그인")),
-              // ),
             ],
           ),
         ),

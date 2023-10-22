@@ -1,17 +1,10 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:client/sign/sign_in.dart';
 import 'package:client/style.dart';
-import 'package:intl/intl.dart';
-import 'dart:convert';
 import 'package:flutter/services.dart';
-import 'package:exif/exif.dart';
-import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 /// 회원가입 페이지(이메일 회원가입)
 class SignUpPage extends StatefulWidget {
@@ -33,68 +26,26 @@ class _SignUpPageState extends State<SignUpPage> {
   //final List<XFile>? images = await _picker.pickMultiImage();
 
   // 텍스트에디팅컨트롤러를 생성하여 필드에 할당
-  final idController = TextEditingController();
   final emailController = TextEditingController();
   final pwController = TextEditingController();
-  final certNumController = TextEditingController();
+  final rePWController = TextEditingController();
+
+  // 텍스트 필드 저장
+  String userEmail ="";
+  String userPassword ="";
+  String userPasswordCheck ="";
 
   // 단계를 위한 bool
-  bool idCheck = false;
   bool emailCheck = false;
-  bool certStartCheck = false;
-  bool certCheck = false;
   bool pwCheck = false;
   bool pwReCheck = false;
+  bool sentEmail = false;
 
-  // 글 저장하기 (POST)
-  void saveMemorial(String content) async {
+  // 텍스트 필드에 입력을 했는지 확인
+  bool setEmail = false;
+  bool setPassword = false;
+  bool setPasswordCheck = false;
 
-    // 요청 본문 데이터
-    var data = {
-      "content" : "test",
-    };
-
-    // 헤더 정보 설정
-    Map<String, String> headers = {
-      'Authorization': 'axNNnzcfJaSiTPI6kW23G2Vns9o1', // 예: 인증 토큰을 추가하는 방법
-      'Content-Type': 'application/json', // 예: JSON 요청인 경우 헤더 설정
-    };
-
-    var url = Uri.parse('http://3.38.1.125:8080/memorial'); // 엔드포인트 URL 설정
-
-    try {
-      var response = await http.post(
-        url,
-        body: json.encode(data), // 요청 본문에 데이터를 JSON 형식으로 인코딩하여 전달
-        headers: headers, // 헤더 추가
-      );
-
-      if (response.statusCode == 200) {
-        // 응답 성공 시의 처리
-
-        var jsonResponse = utf8.decode(response.bodyBytes); // 응답 본문을 JSON 형식으로 디코딩
-        // JSON 값을 활용한 원하는 동작 수행
-        //utf8.decode(jsonResponse);
-        print(jsonResponse);
-
-        List<String> contentList = [];
-
-        List<dynamic> parsedResponse = json.decode(jsonResponse);
-
-        setState(() {
-        });
-
-
-        print('API 호출 성공!!: ${response.statusCode}');
-      } else {
-        // 요청 실패 시의 처리
-        print('API 호출 실패!!: ${response.statusCode}');
-      }
-    } catch (e) {
-      // 예외 발생 시의 처리
-      print('API 호출 중 예외 발생: $e');
-    }
-  }
 
   @override
   void initState() {
@@ -106,6 +57,8 @@ class _SignUpPageState extends State<SignUpPage> {
   void dispose() async {
     super.dispose();
   }
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -120,231 +73,386 @@ class _SignUpPageState extends State<SignUpPage> {
           elevation: 0.0,
           iconTheme: IconThemeData(color: Colors.black),
           centerTitle: true,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios_rounded, color: Colors.black),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
 
         ),extendBodyBehindAppBar: true,
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            SizedBox(height: 85,),
-            if(idCheck == false && emailCheck == false && pwCheck == false && pwReCheck == false)...[
-              Row(
-                children: [
-                  SizedBox(width: 15,),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('아이디를 입력하세요.',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
-                      SizedBox(height: 15,),
-                      Text('로그인에 사용할 아이디를 입력하세요.'),
-                    ],
-                  ),
-                ],
-              ),
+        body: Container(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              SizedBox(height: 86,),
+              /// 텍스트
+              if(emailCheck == false && pwCheck == false && pwReCheck == false)...[
+                Row(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('이메일 주소를 입력하세요.',style: textStyle.bk20semibold),
+                        SizedBox(height: 16,),
+                        Text('이메일 인증을 위해 정확한 이메일을 작성해주세요.',style: textStyle.bk13light),
+                      ],
+                    ),
+                  ],
+                ),
 
-            ] else if(idCheck == true && emailCheck == false && pwCheck == false && pwReCheck == false)...[
-              Row(
-                children: [
-                  SizedBox(width: 15,),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('이메일 주소를 입력하세요.',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
-                      SizedBox(height: 15,),
-                      Text('이메일 인증을 위해 정확한 이메일을 작성해주세요.'),
-                    ],
+              ] else if(emailCheck == true && pwCheck == false && pwReCheck == false )...[
+                Row(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('비밀번호를 설정해주세요.',style: textStyle.bk20semibold),
+                        SizedBox(height: 16,),
+                        Text('로그인에 사용할 비밀번호를 입력하세요.',style: textStyle.bk13light),
+                      ],
+                    ),
+                  ],
+                ),
+              ] else if(emailCheck == true && pwCheck == true && pwReCheck == false)...[
+                Row(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('비밀번호를 확인해주세요.',style: textStyle.bk20semibold),
+                        SizedBox(height: 16,),
+                        Text('비밀번호를 다시 입력해주세요.',style: textStyle.bk13light),
+                      ],
+                    ),
+                  ],
+                ),
+              ]else if((emailCheck == true && pwCheck == true && pwReCheck == true))...[
+                Row(
+                  children: [
+                    SizedBox(width: 15,),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('본인 인증 이메일을 전송했어요.',style: textStyle.bk20semibold),
+                        SizedBox(height: 16,),
+                        Text('본인 인증을 통해 회원가입을 완료해보세요.\n이메일이 오지 않았다면, 스팸메일함을 확인해보세요.',style: textStyle.bk13light),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+
+              SizedBox(height: 20,),
+
+              /// 텍스트 필드
+              if(emailCheck == false && pwCheck == false && pwReCheck == false)...[
+                Form(
+                  key: _formKey,
+                  child:
+                  Container(
+                    width: screenSize.width,
+                    height: 44,
+                    child: TextFormField(
+                      style: TextStyle(decorationThickness: 0, fontFamily: 'Pretendard',
+                          fontSize: 16, fontWeight: FontWeight.w400, color: Color(colorChart.black)),
+                      controller: emailController,
+                      onChanged: (text){
+                        setEmail = true;
+                        setState(() {
+                        });
+                      },
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        filled: true,
+                        fillColor: Color(0xffF9F9F9),
+                        hintText: '이메일 주소',
+                        hintStyle: textStyle.grey16normal,
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(width: 1, color: Colors.white), //<-- SEE HERE
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                      ),
+                      onSaved: (value) {
+                        print('Name field onSaved:$value');
+                      },
+                      validator: (value) {
+                        if(!RegExp(
+                            r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
+                            .hasMatch(value!)){
+                          return '잘못된 이메일 형식입니다.';
+                        }
+                        return null;
+                      },
+                      onFieldSubmitted: (value) {
+                        print('submitted:$value');
+                      },
+                    ),
                   ),
-                ],
-              ),
-            ] else if(idCheck == true && emailCheck == true && pwCheck == false && pwReCheck == false && certCheck == true)...[
-              Row(
-                children: [
-                  SizedBox(width: 15,),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('인증 코드가 확인 되었습니다.\n비밀번호를 설정해주세요.',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
-                      SizedBox(height: 15,),
-                      Text('로그인에 사용할 비밀번호를 입력하세요.'),
-                    ],
-                  ),
-                ],
-              ),
-            ] else if(idCheck == true && emailCheck == true && pwCheck == true && pwReCheck == false)...[
-              Row(
-                children: [
-                  SizedBox(width: 15,),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('비밀번호를 확인해주세요.',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
-                      SizedBox(height: 15,),
-                      Text('비밀번호를 다시 입력해주세요.'),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-            SizedBox(height: 15,),
-            if(idCheck == false && emailCheck == false && pwCheck == false && pwReCheck == false)...[
-              Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: TextField(
-                  controller: idController,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Color(0xffEEF3FE),
-                    labelText: '아이디',
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(width: 1, color: Colors.white), //<-- SEE HERE
-                      borderRadius: BorderRadius.circular(12.0),
+
+                ),
+
+              ]else if((emailCheck == true && pwCheck == false && pwReCheck == false))...[
+                Form(
+                  key: _formKey,
+                  child:
+
+                  Container(
+                    width: screenSize.width,
+                    height: 44,
+                    child: TextFormField(
+                      obscureText: true,
+                      style: TextStyle(decorationThickness: 0, fontFamily: 'Pretendard',
+                          fontSize: 16, fontWeight: FontWeight.w400, color: Color(colorChart.black)),
+                      controller: pwController,
+                      onChanged: (text){
+                        setPassword = true;
+                        setState(() {
+                        });
+                      },
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        filled: true,
+                        fillColor: Color(0xffF9F9F9),
+                        hintText: '비밀번호',
+                        hintStyle: textStyle.grey16normal,
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(width: 1, color: Colors.white), //<-- SEE HERE
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                      ),
+                      onSaved: (value) {
+                        print('Name field onSaved:$value');
+                      },
+                      validator: (value) {
+                        if(value!.length < 8){
+                          return '8자 이상의 영문, 숫자, 특수문자를 조합하여 설정해주세요.';
+                        }
+                        // if(!RegExp(r'^[a-zA-Z0-9 ]+$').hasMatch(value!)){
+                        //   return '8자 이상의 영문, 숫자, 특수문자를 조합하여 설정해주세요.';
+                        // } else if(!RegExp(r'[a-zA-Z]').hasMatch(value!)){
+                        //   return '8자 이상의 영문, 숫자, 특수문자를 조합하여 설정해주세요.';
+                        // }else if(value!.length < 8){
+                        //   return '8자 이상의 영문, 숫자, 특수문자를 조합하여 설정해주세요.';
+                        // }
+                      },
+                      onFieldSubmitted: (value) {
+                        print('submitted:$value');
+                      },
                     ),
                   ),
                 ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(width: 328,
-                    child: ElevatedButton(onPressed: (){
-                      idCheck = true;
-                      setState(() {});
-                    },
-                        style: buttonChart().signInbtn,
-                        child: Text("다음", style: textStyle.white16normal,)
+
+
+
+              ] else if((emailCheck == true && pwCheck == true && pwReCheck == false))...[
+                Form(
+                  key: _formKey,
+                  child:
+                  Container(
+                    width: screenSize.width,
+                    height: 44,
+                    child: TextFormField(
+                      obscureText: true,
+                      style: TextStyle(decorationThickness: 0, fontFamily: 'Pretendard',
+                          fontSize: 16, fontWeight: FontWeight.w400, color: Color(colorChart.black)),
+                      controller: rePWController,
+                      onChanged: (text){
+                        setPasswordCheck = true;
+                        setState(() {
+                        });
+                      },
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        filled: true,
+                        fillColor: Color(0xffF9F9F9),
+                        hintText: '비밀번호 확인',
+                        hintStyle: textStyle.grey16normal,
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(width: 1, color: Colors.white), //<-- SEE HERE
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                      ),
+                      onSaved: (value) {
+                        print('Name field onSaved:$value');
+                      },
+                      validator: (value) {
+                        if(!(value == userPassword)){
+                          return '비밀번호가 일치하지 않습니다.';
+                        }
+                      },
+                      onFieldSubmitted: (value) {
+                        print('submitted:$value');
+                      },
                     ),
                   ),
-                ],
-              ),
-            ] else if(idCheck == true && emailCheck == false && pwCheck == false && pwReCheck == false)...[
-              Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: TextField(
-                  controller: emailController,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Color(0xffEEF3FE),
-                    labelText: '이메일',
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(width: 1, color: Colors.white), //<-- SEE HERE
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                  ),
+
+
                 ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(width: 328,
-                    child: ElevatedButton(onPressed: (){
-                      certStartCheck = true;
-                      setState(() {});
-                    },
-                        style: buttonChart().signInbtn,
-                        child: Text("다음", style: textStyle.white16normal,)
-                    ),
-                  ),
-                ],
-              ),
-              if(certStartCheck)...[
-                Padding(
-                  padding: const EdgeInsets.all(15.0),
+
+              ] else if((emailCheck == true && pwCheck == true && pwReCheck == true))...[
+
+                Container(
+                  width: screenSize.width,
+                  height: 44,
                   child: TextField(
-                    controller: emailController,
+                    style: TextStyle(decorationThickness: 0, fontFamily: 'Pretendard',
+                        fontSize: 16, fontWeight: FontWeight.w400, color: Color(colorChart.black)),
+                    readOnly: true, // 읽기 전용
                     decoration: InputDecoration(
+                      border: InputBorder.none,
                       filled: true,
-                      fillColor: Color(0xffEEF3FE),
-                      labelText: '인증 번호',
+                      fillColor: Color(0xffEAEAEA),
+                      hintText: userEmail,
+                      hintStyle: textStyle.grey16normal,
                       enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(width: 1, color: Colors.white), //<-- SEE HERE
                         borderRadius: BorderRadius.circular(12.0),
                       ),
                     ),
                   ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(width: 328,
-                      child: ElevatedButton(onPressed: (){
-                        emailCheck = true;
-                        certCheck = true;
-                        setState(() {});
-                      },
-                          style: buttonChart().signInbtn,
-                          child: Text("다음", style: textStyle.white16normal,)
-                      ),
-                    ),
-                  ],
-                ),
+                )
               ],
 
-            ] else if(idCheck == true && emailCheck == true && pwCheck == false && pwReCheck == false && certCheck == true)...[
-              Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: TextField(
-                  obscureText: true,
-                  controller: pwController,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Color(0xffEEF3FE),
-                    labelText: '비밀번호',
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(width: 1, color: Colors.white), //<-- SEE HERE
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                  ),
-                ),
-              ),
+              SizedBox( height: 16,),
+              /// 버튼
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Container(width: 328,
-                    child: ElevatedButton(onPressed: (){
-                      pwCheck = true;
-                      setState(() {});
-                    },
-                        style: buttonChart().signInbtn,
-                        child: Text("다음", style: textStyle.white16normal,)
-                    ),
-                  ),
+                  if(emailCheck == false && pwCheck == false && pwReCheck == false)...[
+                    if(setEmail)...[
+                      Container(
+                        height: 44,
+                        width: screenSize.width,
+                        child: ElevatedButton(onPressed: (){
+                          if (_formKey.currentState!.validate()) {
+                            setState(() {
+                              _formKey.currentState!.save();
+                              emailCheck = true;
+                              userEmail = emailController.text;
+                            });
+                          }
+                          //setState(() {});
+                        },
+                            style: buttonChart().signInbtn,
+                            child: Text("다음", style: textStyle.white16semibold,)
+                        ),
+                      ),
+                    ]else...[
+                      Container(
+                        height: 44,
+                        width: screenSize.width,
+                        child: ElevatedButton(onPressed: (){
+                          // 아무 반응 없는 것이 맞음
+                        },
+                            style: buttonChart().purplebtn3,
+                            child: Text("다음", style: textStyle.white16semibold,)
+                        ),
+                      ),
+                    ]
+                  ]
+                  else if(emailCheck == true && pwCheck == false && pwReCheck == false)...[
+                    if(setPassword)...[
+                      Container(
+                        height: 44,
+                        width: screenSize.width,
+                        child: ElevatedButton(onPressed: (){
+
+                          if (_formKey.currentState!.validate()) {
+                            setState(() {
+                              _formKey.currentState!.save();
+                              pwCheck = true;
+                              userPassword = pwController.text;
+                            });
+                          }
+                        },
+                            style: buttonChart().signInbtn,
+                            child: Text("다음", style: textStyle.white16semibold,)
+                        ),
+                      ),
+                    ]else...[
+                      Container(
+                        height: 44,
+                        width: screenSize.width,
+                        child: ElevatedButton(onPressed: (){
+                          // 아무 반응 없는 것이 맞음
+                        },
+                            style: buttonChart().purplebtn3,
+                            child: Text("다음", style: textStyle.white16semibold,)
+                        ),
+                      ),
+                    ]
+                  ]
+                  else if(emailCheck == true && pwCheck == true && pwReCheck == false)...[
+                      if(setPasswordCheck)...[
+                        Container(
+                          height: 44,
+                          width: screenSize.width,
+                          child: ElevatedButton(onPressed: () async{
+                            if (_formKey.currentState!.validate()) {
+                              setState(() {
+                                _formKey.currentState!.save();
+                                pwReCheck = true;
+                                userPasswordCheck = rePWController.text;
+                              });
+
+                              try {
+                                final result = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                                    email: userEmail, password: userPasswordCheck);
+                                if (result.user != null) {
+                                  // 인증 메일 발송
+                                  result.user!.sendEmailVerification();
+                                  // 새로운 계정 생성이 성공하였으므로 기존 계정이 있을 경우 로그아웃 시킴
+                                  //signOut();
+                                  //return true;
+                                }
+                              } on Exception catch (e) {
+                                // logger.e(e.toString());
+                                // List<String> result = e.toString().split(", ");
+                                // setLastFBMessage(result[1]);
+                                // return false;
+                              }
+
+                            }
+                          },
+                              style: buttonChart().signInbtn,
+                              child: Text("다음", style: textStyle.white16semibold,)
+                          ),
+                        ),
+                      ]else...[
+                        Container(
+                          height: 44,
+                          width: screenSize.width,
+                          child: ElevatedButton(onPressed: (){
+                            // 아무 반응 없는 것이 맞음
+                          },
+                              style: buttonChart().purplebtn3,
+                              child: Text("다음", style: textStyle.white16semibold,)
+                          ),
+                        ),
+                      ]
+
+                    ]
+                    else if(emailCheck == true && pwCheck == true && pwReCheck == true)...[
+                        Container(
+                          height: 44,
+                          width: screenSize.width,
+                          child: ElevatedButton(onPressed: (){
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => SignInPage()));
+                          },
+                              style: buttonChart().signInbtn,
+                              child: Text("확인", style: textStyle.white16semibold,)
+                          ),
+                        ),
+                      ],
                 ],
               ),
-            ] else if(idCheck == true && emailCheck == true && pwCheck == true && pwReCheck == false && certCheck == true)...[
-              Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: TextField(
-                  obscureText: true,
-                  controller: pwController,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Color(0xffEEF3FE),
-                    labelText: '비밀번호 확인',
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(width: 1, color: Colors.white), //<-- SEE HERE
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                  ),
-                ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(width: 328,
-                    child: ElevatedButton(onPressed: (){
-                    },
-                        style: buttonChart().signInbtn,
-                        child: Text("다음", style: textStyle.white16normal,)
-                    ),
-                  ),
-                ],
-              ),
+
+
             ],
-
-
-            SizedBox(height: 35,),
-
-
-          ],
+          ),
         ),
 
       );
