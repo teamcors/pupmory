@@ -13,6 +13,7 @@ import com.hamahama.pupmory.domain.user.ServiceUserRepository;
 import com.hamahama.pupmory.dto.community.HelpAnswerSaveRequestDto;
 import com.hamahama.pupmory.dto.community.HelpSaveRequestDto;
 import com.hamahama.pupmory.dto.community.WordCloudRequestDto;
+import com.hamahama.pupmory.pojo.HelpLog;
 import com.hamahama.pupmory.pojo.WordCount;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -85,6 +87,19 @@ public class CommunityService {
         }
         else
             return null; // ResponseEntity로 리팩토링 필요
+    }
+
+    @Transactional
+    public List<HelpLog> getHelpLog(String uid) {
+        List<String> fromUserList = helpRepo.findDistinctFromUser(uid);
+
+        List<HelpLog> helpLog = new ArrayList<>();
+        for (String fromUserUid : fromUserList) {
+            ServiceUser user = userRepo.findById(fromUserUid).get();
+            helpLog.add(HelpLog.of(user));
+        }
+
+        return helpLog;
     }
 
     @Transactional
