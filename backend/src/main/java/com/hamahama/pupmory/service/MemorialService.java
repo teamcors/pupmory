@@ -51,6 +51,19 @@ public class MemorialService {
     }
 
     @Transactional
+    public PostAllResponseDto getOthersAllPost(String targetUid) {
+        // myUid가 targetUid의 메모리얼을 조회: private은 조회되지 않음
+        List<Post> posts = postRepo.findAllByUserUidAndIsPrivateFalse(targetUid);
+        List<PostMeta> postMetas = new ArrayList<>();
+        for (Post post : posts)
+            postMetas.add(PostMeta.of(post));
+
+        ServiceUser user = userRepo.findByUserUid(targetUid);
+
+        return new PostAllResponseDto(user.getNickname(), user.getProfileImage(), user.getPuppyName(), user.getPuppyType(), user.getPuppyAge(), postMetas);
+    }
+
+    @Transactional
     public List<FeedPostResponseDto> getFeedByLatest(String uuid) {
         List<Post> posts = postRepo.findLatestFeed(uuid);
         List<FeedPostResponseDto> feeds = new ArrayList<>();

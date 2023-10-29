@@ -45,6 +45,12 @@ public class MemorialController {
         return memorialService.getAllPost(uid);
     }
 
+    @GetMapping("guest/all")
+    public PostAllResponseDto getOthersAllPost(@RequestHeader(value="Authorization") String token, @RequestParam String targetUid) {
+        String myUid = jwtKit.validate(token);
+        return memorialService.getOthersAllPost(targetUid);
+    }
+
     @PostMapping("/feed")
     public List<FeedPostResponseDto> getFeed(@RequestParam Boolean filter, @RequestHeader(value="Authorization") String token, @RequestBody(required=false) FeedPostFilterRequestDto dto) {
         String uid = jwtKit.validate(token);
