@@ -11,6 +11,7 @@ import com.hamahama.pupmory.domain.community.WordCloudRepository;
 import com.hamahama.pupmory.domain.user.ServiceUser;
 import com.hamahama.pupmory.domain.user.ServiceUserRepository;
 import com.hamahama.pupmory.dto.community.HelpAnswerSaveRequestDto;
+import com.hamahama.pupmory.dto.community.HelpResponseDto;
 import com.hamahama.pupmory.dto.community.HelpSaveRequestDto;
 import com.hamahama.pupmory.dto.community.WordCloudRequestDto;
 import com.hamahama.pupmory.pojo.HelpLog;
@@ -78,15 +79,25 @@ public class CommunityService {
     }
     
     @Transactional
-    public List<Help> getAllHelp(String uid, String type) {
-        if (type.equals("req")) { // 본인이 요청한 도움 내역
-            return helpRepo.findAllByFromUserUid(uid);
-        }
-        else if (type.equals("ans")) { // 본인이 요청받은 도움 내역
-            return helpRepo.findAllByToUserUid(uid);
-        }
+    public List<HelpResponseDto> getAllHelp(String uid, String type) {
+        List<Help> helpList;
+        List<HelpResponseDto> dtoList = new ArrayList<HelpResponseDto>();
+
+        if (type.equals("req")) // 본인이 요청한 도움 내역
+            helpList = helpRepo.findAllByFromUserUid(uid);
+        else if (type.equals("ans")) // 본인이 요청받은 도움 내역
+            helpList = helpRepo.findAllByToUserUid(uid);
         else
             return null; // ResponseEntity로 리팩토링 필요
+
+        ServiceUser fromUser, toUser;
+        for (Help help : helpList) {
+            fromUser = userRepo.findById(help.getFromUserUid()).get();
+            toUser = userRepo.findById(help.getToUserUid()).get();
+            dtoList.add(HelpResponseDto.of(help, fromUser, toUser));
+        }
+
+        return dtoList;
     }
 
     @Transactional

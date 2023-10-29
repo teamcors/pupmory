@@ -3,6 +3,7 @@ package com.hamahama.pupmory.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hamahama.pupmory.domain.community.Help;
 import com.hamahama.pupmory.dto.community.HelpAnswerSaveRequestDto;
+import com.hamahama.pupmory.dto.community.HelpResponseDto;
 import com.hamahama.pupmory.dto.community.HelpSaveRequestDto;
 import com.hamahama.pupmory.dto.community.WordCloudRequestDto;
 import com.hamahama.pupmory.pojo.HelpLog;
@@ -42,7 +43,7 @@ public class CommunityController {
     }
 
     @GetMapping("/help/all")
-    public List<Help> getAllHelp(@RequestHeader(value="Authorization") String token, @RequestParam String type) {
+    public List<HelpResponseDto> getAllHelp(@RequestHeader(value="Authorization") String token, @RequestParam String type) {
         String uid = jwtKit.validate(token);
         return communityService.getAllHelp(uid, type);
     }

@@ -9,9 +9,12 @@ import com.hamahama.pupmory.domain.conversation.data.LineDataRepository;
 import com.hamahama.pupmory.domain.conversation.result.SetResultId;
 import com.hamahama.pupmory.domain.conversation.result.UserSetResult;
 import com.hamahama.pupmory.domain.conversation.result.UserSetResultRepository;
+import com.hamahama.pupmory.domain.user.ServiceUser;
+import com.hamahama.pupmory.domain.user.ServiceUserRepository;
 import com.hamahama.pupmory.dto.AnswerResponseDto;
 import com.hamahama.pupmory.dto.LineResponseDto;
 import com.hamahama.pupmory.dto.SetResponseDto;
+import com.hamahama.pupmory.dto.user.UserInfoUpdateDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +32,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class ConversationService {
-    private final UserSetResultRepository usrRepo;
+    private final ServiceUserRepository userRepo;
+    private final UserSetResultRepository usresRepo;
     private final MetaDataRepository mdRepo;
     private final LineDataRepository ldRepo;
     private final AnswerDataRepository adRepo;
@@ -37,8 +41,18 @@ public class ConversationService {
     private final GptService gptService;
 
     @Transactional
+    public void saveUserInfo(String uid, UserInfoUpdateDto dto) {
+        ServiceUser user = userRepo.findById(uid).get();
+
+        user.setNickname(dto.getNickname());
+        user.setPuppyName(dto.getPuppyName());
+        user.setPuppyAge(dto.getPuppyAge());
+        user.setPuppyType(dto.getPuppyType());
+    }
+
+    @Transactional
     public List<SetResponseDto> getAvailableSet(String uuid) {
-        List<UserSetResult> resList = usrRepo.getLastTwoSet(uuid);
+        List<UserSetResult> resList = usresRepo.getLastTwoSet(uuid);
         List<MetaData> availableMeta = new ArrayList<MetaData>();
         List<SetResponseDto> availableSet = new ArrayList<SetResponseDto>();
 
