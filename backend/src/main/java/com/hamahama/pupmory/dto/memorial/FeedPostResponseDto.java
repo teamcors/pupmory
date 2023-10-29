@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @Getter
 public class FeedPostResponseDto {
     private Long id;
+    private String userUid;
     private String nickname;
     private String profileImage;
     private String image;
