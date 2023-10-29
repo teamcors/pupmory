@@ -30,7 +30,6 @@ public class ServiceUser {
     @Column(nullable = false)
     private String email;
 
-    @Column(nullable = false)
     private String nickname;
 
     private String puppyName;
@@ -39,16 +38,13 @@ public class ServiceUser {
 
     private Integer puppyAge;
 
-    @Column(nullable = false)
-    private Long conversationStatus;
+    @ColumnDefault("0")
+    private Integer conversationStatus;
 
-    @Column(nullable = false)
     @ColumnDefault("0")
     private Integer helpCount;
 
     // deprecated
-    private String characterData;
-
-    @Column(nullable = false)
-    private Long memoryCount;
+    @ColumnDefault("1")
+    private Integer memoryCount;
 }
