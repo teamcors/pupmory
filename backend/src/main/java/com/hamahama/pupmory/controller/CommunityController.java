@@ -5,6 +5,7 @@ import com.hamahama.pupmory.domain.community.Help;
 import com.hamahama.pupmory.dto.community.HelpAnswerSaveRequestDto;
 import com.hamahama.pupmory.dto.community.HelpSaveRequestDto;
 import com.hamahama.pupmory.dto.community.WordCloudRequestDto;
+import com.hamahama.pupmory.pojo.HelpLog;
 import com.hamahama.pupmory.pojo.WordCount;
 import com.hamahama.pupmory.service.CommunityService;
 import com.hamahama.pupmory.util.auth.JwtKit;
@@ -44,6 +45,12 @@ public class CommunityController {
     public List<Help> getAllHelp(@RequestHeader(value="Authorization") String token, @RequestParam String type) {
         String uid = jwtKit.validate(token);
         return communityService.getAllHelp(uid, type);
+    }
+
+    @GetMapping("/help/log")
+    public List<HelpLog> getHelpLog(@RequestHeader(value="Authorization") String token, @RequestParam String targetUid) {
+        String uid = jwtKit.validate(token);
+        return communityService.getHelpLog(targetUid);
     }
 
     @PostMapping("/answer")

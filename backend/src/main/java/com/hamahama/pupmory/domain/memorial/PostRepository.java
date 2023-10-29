@@ -9,6 +9,8 @@ import java.util.List;
 public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findAllByUserUid(String uuid);
 
+    List<Post> findAllByUserUidAndIsPrivateFalse(String uuid);
+
     @Query("SELECT p FROM Post p WHERE p.userUid <> :userUid AND p.isPrivate = false ORDER BY p.createdAt DESC")
     List<Post> findLatestFeed(@Param("userUid") String uuid);
 

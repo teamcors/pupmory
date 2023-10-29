@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
+
 /**
  * @author Queue-ri
  * @since 2023/10/20
@@ -31,5 +33,15 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(@RequestBody SignUpRequestDto dto) {
         return authService.signUp(dto.getUserUid(), dto.getEmail());
+    }
+
+    @PostMapping("/email")
+    public ResponseEntity<?> sendValidationMail(@RequestParam String email) {
+        return authService.sendValidationMail(email);
+    }
+
+    @GetMapping("/code")
+    public ResponseEntity<?> checkValidationCode(@RequestParam String code, @RequestParam String issuedBy) {
+        return authService.checkValidationCode(code, issuedBy);
     }
 }

@@ -45,6 +45,12 @@ public class MemorialController {
         return memorialService.getAllPost(uid);
     }
 
+    @GetMapping("guest/all")
+    public PostAllResponseDto getOthersAllPost(@RequestHeader(value="Authorization") String token, @RequestParam String targetUid) {
+        String myUid = jwtKit.validate(token);
+        return memorialService.getOthersAllPost(targetUid);
+    }
+
     @PostMapping("/feed")
     public List<FeedPostResponseDto> getFeed(@RequestParam Boolean filter, @RequestHeader(value="Authorization") String token, @RequestBody(required=false) FeedPostFilterRequestDto dto) {
         String uid = jwtKit.validate(token);
@@ -67,7 +73,7 @@ public class MemorialController {
     }
 
     @GetMapping("/comment")
-    public List<Comment> getComment(@RequestParam Long postId) {
+    public List<CommentResponseDto> getComment(@RequestParam Long postId) {
         return memorialService.getComment(postId);
     }
 
