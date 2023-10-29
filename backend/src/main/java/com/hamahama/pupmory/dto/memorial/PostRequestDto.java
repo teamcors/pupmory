@@ -31,6 +31,7 @@ public class PostRequestDto {
                 .userUid(uid)
                 .image(fileUrlString)
                 .title(title)
+                .date(date)
                 .place(place)
                 .content(content)
                 .hashtag(hashtag)
