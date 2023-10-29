@@ -131,7 +131,17 @@ public class MemorialService {
     }
 
     @Transactional
-    public List<Comment> getComment(Long postId) { return commentRepo.findAllByPostId(postId); }
+    public List<CommentResponseDto> getComment(Long postId) {
+        List<Comment> commentList =  commentRepo.findAllByPostId(postId);
+
+        List<CommentResponseDto> dtoList = new ArrayList<CommentResponseDto>();
+        for (Comment comment : commentList) {
+            ServiceUser user = userRepo.findById(comment.getUserUid()).get();
+            dtoList.add(CommentResponseDto.of(comment, user));
+        }
+
+        return dtoList;
+    }
 
     @Transactional
     public void saveComment(String uid, Long postId, CommentRequestDto dto) {

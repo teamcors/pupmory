@@ -73,7 +73,7 @@ public class MemorialController {
     }
 
     @GetMapping("/comment")
-    public List<Comment> getComment(@RequestParam Long postId) {
+    public List<CommentResponseDto> getComment(@RequestParam Long postId) {
         return memorialService.getComment(postId);
     }
 
