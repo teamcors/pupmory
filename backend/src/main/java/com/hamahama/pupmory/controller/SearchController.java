@@ -4,7 +4,7 @@ import com.hamahama.pupmory.domain.search.KeywordRank;
 import com.hamahama.pupmory.dto.memorial.FeedPostResponseDto;
 import com.hamahama.pupmory.dto.search.SearchHistoryResponseDto;
 import com.hamahama.pupmory.service.SearchService;
-import com.hamahama.pupmory.util.signin.JwtKit;
+import com.hamahama.pupmory.util.auth.JwtKit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

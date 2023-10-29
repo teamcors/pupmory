@@ -7,7 +7,7 @@ import com.hamahama.pupmory.dto.community.HelpSaveRequestDto;
 import com.hamahama.pupmory.dto.community.WordCloudRequestDto;
 import com.hamahama.pupmory.pojo.WordCount;
 import com.hamahama.pupmory.service.CommunityService;
-import com.hamahama.pupmory.util.signin.JwtKit;
+import com.hamahama.pupmory.util.auth.JwtKit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;

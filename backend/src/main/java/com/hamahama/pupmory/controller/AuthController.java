@@ -1,0 +1,35 @@
+package com.hamahama.pupmory.controller;
+
+import com.hamahama.pupmory.dto.auth.SignUpRequestDto;
+import com.hamahama.pupmory.pojo.Token;
+import com.hamahama.pupmory.service.AuthService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+/**
+ * @author Queue-ri
+ * @since 2023/10/20
+ */
+
+@RequiredArgsConstructor
+@RestController
+@RequestMapping("auth")
+public class AuthController {
+    private final AuthService authService;
+
+    @GetMapping("/token")
+    public Token getToken(@RequestHeader(value="X-Firebase-Token") String uid) {
+        return authService.getToken(uid);
+    }
+
+    @GetMapping("/signin")
+    public ResponseEntity<?> signIn(@RequestHeader(value="X-Firebase-Token") String uid) {
+        return authService.signIn(uid);
+    }
+
+    @PostMapping("/signup")
+    public ResponseEntity<?> signUp(@RequestBody SignUpRequestDto dto) {
+        return authService.signUp(dto.getUserUid(), dto.getEmail());
+    }
+}

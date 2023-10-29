@@ -1,11 +1,9 @@
 package com.hamahama.pupmory.controller;
 
 import com.hamahama.pupmory.domain.memorial.Comment;
-import com.hamahama.pupmory.domain.memorial.UserLike;
-import com.hamahama.pupmory.domain.memorial.Post;
 import com.hamahama.pupmory.dto.memorial.*;
 import com.hamahama.pupmory.service.MemorialService;
-import com.hamahama.pupmory.util.signin.JwtKit;
+import com.hamahama.pupmory.util.auth.JwtKit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author Queue-ri

@@ -1,4 +1,4 @@
-package com.hamahama.pupmory.util.signin;
+package com.hamahama.pupmory.util.auth;
 
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;

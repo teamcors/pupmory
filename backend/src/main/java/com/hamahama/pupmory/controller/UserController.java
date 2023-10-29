@@ -4,7 +4,7 @@ import com.hamahama.pupmory.domain.user.ServiceUser;
 import com.hamahama.pupmory.dto.*;
 import com.hamahama.pupmory.service.ConversationService;
 import com.hamahama.pupmory.service.UserService;
-import com.hamahama.pupmory.util.signin.JwtKit;
+import com.hamahama.pupmory.util.auth.JwtKit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
