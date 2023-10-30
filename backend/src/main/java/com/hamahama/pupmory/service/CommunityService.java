@@ -201,7 +201,7 @@ public class CommunityService {
     @Transactional
     public void saveWordCloudExec(String uid, String sentence) throws IOException, InterruptedException {
         String arg = "\"" + sentence + "\"";
-        ProcessBuilder pb = new ProcessBuilder("python", "src/main/python/wcloud.py", arg);
+        ProcessBuilder pb = new ProcessBuilder("python3", "wcloud.py", arg);
         Process p = pb.start();
         int exitval = p.waitFor();
 
