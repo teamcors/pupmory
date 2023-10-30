@@ -74,8 +74,8 @@ public class CommunityController {
     }
 
     @GetMapping("/wcloud")
-    public List<WordCount> getWordCloud(@RequestHeader(value="Authorization") String token) throws JsonProcessingException {
+    public List<WordCount> getWordCloud(@RequestHeader(value="Authorization") String token, @RequestParam String targetUid) throws JsonProcessingException {
         String uid = jwtKit.validate(token);
-        return communityService.getWordCloud(uid);
+        return communityService.getWordCloud(targetUid);
     }
 }
