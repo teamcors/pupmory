@@ -1,4 +1,6 @@
+/// 옮기기 가능
 import 'package:flutter_svg/svg.dart';
+import 'package:client/conversation/intro/intro.dart';
 import 'package:client/style.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,6 +13,7 @@ import 'password_reset.dart';
 import 'sign_up2.dart';
 
 String userAccessToken = "";
+bool checkSignIn = false;
 
 class SignInPage extends StatefulWidget {
   @override
@@ -38,35 +41,6 @@ class _SignInPageState extends State<SignInPage> {
     }
   }
 
-  //flutter_secure_storage 사용을 위한 초기화 작업
-  // 로그인 버튼 누르면 실행
-  // loginAction(accountName, password) async {
-  //   try {
-  //     var dio = Dio();
-  //     var param = {'account_name': '$accountName', 'password': '$password'};
-  //
-  //     Response response = await dio.post('로그인 API URL', data: param);
-  //
-  //     if (response.statusCode == 200) {
-  //       final jsonBody = json.decode(response.data['user_id'].toString());
-  //       // 직렬화를 이용하여 데이터를 입출력하기 위해 model.dart에 Login 정의 참고
-  //       var val = jsonEncode(Login('$accountName', '$password', '$jsonBody'));
-  //
-  //       await storage.write(
-  //         key: 'login',
-  //         value: val,
-  //       );
-  //       print('접속 성공!');
-  //       return true;
-  //     } else {
-  //       print('error');
-  //       return false;
-  //     }
-  //   } catch (e) {
-  //     return false;
-  //   }
-  // }
-
   @override
   void initState() {
     super.initState();
@@ -83,8 +57,8 @@ class _SignInPageState extends State<SignInPage> {
   // 로그인 토큰 발급해오기
   void fetchSignInToken(String fToken) async {
     // API 엔드포인트 URL
-    print("받토:" + fToken);
-    String apiUrl = 'http://3.38.1.125:8080/signin/token'; // 실제 API 엔드포인트로 변경하세요
+    print("받은 로그인 토큰:" + fToken);
+    String apiUrl = 'http://3.38.1.125:8080/auth/signin'; // 실제 API 엔드포인트로 변경하세요
 
     // 헤더 정보 설정
     Map<String, String> headers = {
@@ -110,25 +84,21 @@ class _SignInPageState extends State<SignInPage> {
       userAccessToken = parsedResponseAT['accessToken']; // 액세스 토큰을 전역변수에 저장 -> 다른 파일에서도 사용
       print("accessToken:" + userAccessToken);
 
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => MyScreenPage(title: '스크린 페이지',)));
-
       fetchUserInfo(userAccessToken);
 
     } else {
       // 요청이 실패한 경우 오류 처리
-      print('HTTP 요청 실패: ${response.statusCode}');
+      print('HTTP 요청 실패(로그인 토큰 발급): ${response.statusCode}');
     }
   }
 
+  // late List<dynamic> parsedResponseCM;
   late Map<String, dynamic> parsedResponseUser; // 사용자 정보
 
   // 사용자 정보 조회 : 대화하기가 1이면 인트로 아니면 그냥 홈으로 이동
   void fetchUserInfo(String aToken) async {
     // API 엔드포인트 URL
-    print("받토:" + aToken);
+    print("받토~~~:" + aToken);
     String apiUrl = 'http://3.38.1.125:8080/user/info'; // 실제 API 엔드포인트로 변경하세요
 
     // 헤더 정보 설정
@@ -148,18 +118,82 @@ class _SignInPageState extends State<SignInPage> {
       // 응답 데이터 처리
       print('서버로부터 받은 내용 데이터(사용자 정보): ${response.body}');
       var jsonResponse = utf8.decode(response.bodyBytes);
-
       parsedResponseUser = json.decode(jsonResponse);
+      print("뾰잉");
+      print(parsedResponseUser["conversationStatus"]);
+
+      print("현재 사용자의 대화 단계: "+ parsedResponseUser.toString());
+      // if(parsedResponseUser["conversationStatus"].toString() == "0"){
+      //   print("현재 사용자 단계 0인데?");
+      //   Navigator.push(
+      //       context,
+      //       MaterialPageRoute(
+      //           builder: (context) => IntroPage()));
+      // }else{
+      //   Navigator.push(
+      //       context,
+      //       MaterialPageRoute(
+      //           builder: (context) => MyScreenPage(title: '스크린 페이지',)));
+      // }
 
     } else {
       // 요청이 실패한 경우 오류 처리
-      print('HTTP 요청 실패: ${response.statusCode}');
+      print('HTTP 요청 실패(사용자 정보 조회): ${response.statusCode}');
     }
   }
 
   @override
   Future<void> resetPassword(String email) async {
     await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+  }
+
+  // 구글 사용자를 위한 함수
+  late Map<String, dynamic> parsedResponseAT2; // 액세스 토큰
+
+  // 회원가입 = 회원생성 및 회원 처음 정보 db 생성을 위해서 존재
+  void fetchSignUpToken(String userUid, String email) async {
+
+    // 요청 본문 데이터
+    var data = {
+      "userUid": userUid,
+      "email": email,
+    };
+
+    String apiUrl = 'http://3.38.1.125:8080/auth/signup'; // 실제 API 엔드포인트로 변경하세요
+
+    // 헤더 정보 설정
+    Map<String, String> headers = {
+      'X-Firebase-Token': userUid, // 예: 인증 토큰을 추가하는 방법
+      'Content-Type': 'application/json', // 예: JSON 요청인 경우 헤더 설정
+      'Accept': '*/*'
+    };
+
+    // HTTP GET 요청 보내기
+    var response = await http.post(
+      Uri.parse(apiUrl),
+      body: json.encode(data),
+      headers: headers, // 헤더 추가
+    );
+
+    // HTTP 응답 상태 확인
+    if (response.statusCode == 200) {
+      // 응답 데이터 처리
+      print('서버로부터 받은 내용 데이터: ${response.body}');
+      var jsonResponse = utf8.decode(response.bodyBytes);
+
+      parsedResponseAT2 = json.decode(jsonResponse);
+
+      userAccessToken = parsedResponseAT2['accessToken']; // 액세스 토큰을 전역변수에 저장 -> 다른 파일에서도 사용
+      print("accessToken:" + userAccessToken);
+
+      userAccessToken = userAccessToken;
+
+      fetchUserInfo(userAccessToken);
+
+    } else {
+      // 요청이 실패한 경우 오류 처리
+      print('HTTP 요청 실패(회원가입): ${response.statusCode}');
+    }
   }
 
   // 구글 로그인
@@ -178,10 +212,21 @@ class _SignInPageState extends State<SignInPage> {
 
     //print("google~: " + credential.);
 
+    //final UserCredential authResult = await FirebaseAuth.instance.signInWithCredential(credential);
     final UserCredential authResult = await FirebaseAuth.instance.signInWithCredential(credential);
     final User? user = authResult.user;
 
-    fetchSignInToken(user!.uid);
+    if (user != null) {
+      // 사용자가 처음 로그인한 경우
+      print("check uid(처음 로그인):"+ user.uid);
+      fetchSignUpToken(user.uid, googleUser!.email);
+    } else{
+      print("check uid(원래 있던 로그인):"+ user!.uid);
+      fetchSignInToken(user!.uid);
+    }
+
+    // fetchSignUpToken(googleUser!.email,user!.uid);
+    // fetchSignInToken(user!.uid);
 
     // Once signed in, return the UserCredential
     return await FirebaseAuth.instance.signInWithCredential(credential);
@@ -214,15 +259,17 @@ class _SignInPageState extends State<SignInPage> {
               Container(
                 width: screenSize.width,
                 height: 44,
-                child: TextFormField(
+                child:
+                TextFormField(
                   controller: idController,
                   style: textStyle.bk16normal,
                   decoration: InputDecoration(
+                    contentPadding: EdgeInsets.only(top:3, left: 5),
+                    hintStyle: textStyle.grey16normal,
                     border: InputBorder.none,
                     filled: true,
                     fillColor: Color(0xffEEF3FE),
                     hintText: '이메일',
-                    hintStyle: textStyle.grey16normal,
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(width: 1, color: Colors.white), //<-- SEE HERE
                       borderRadius: BorderRadius.circular(12.0),
@@ -240,11 +287,12 @@ class _SignInPageState extends State<SignInPage> {
                   controller: passwordController,
                   style: textStyle.bk16normal,
                   decoration: InputDecoration(
+                    contentPadding: EdgeInsets.only(top:3, left: 5),
+                    hintStyle: textStyle.grey16normal,
                     border: InputBorder.none,
                     filled: true,
                     fillColor: Color(0xffEEF3FE),
                     hintText: '비밀번호',
-                    hintStyle: textStyle.grey16normal,
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(width: 1, color: Colors.white), //<-- SEE HERE
                       borderRadius: BorderRadius.circular(12.0),
@@ -269,6 +317,7 @@ class _SignInPageState extends State<SignInPage> {
                         );
 
                         if (credential.user != null) {
+                          checkSignIn = true;
                           print("테스트");
                           print(credential);
                           print(credential.user!.uid);
