@@ -1,11 +1,17 @@
 package com.hamahama.pupmory.service;
 
-import com.hamahama.pupmory.domain.conversation.data.GptAnswerDataRepository;
+import com.hamahama.pupmory.domain.conversation.data.GptEmotionData;
+import com.hamahama.pupmory.domain.conversation.data.GptEmotionDataRepository;
+import com.hamahama.pupmory.dto.conversation.EmotionResponseDto;
+import com.hamahama.pupmory.pojo.ErrorMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -13,11 +19,13 @@ import java.util.List;
  * @since 2023/06/04
  */
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class GptService {
     private final ChatgptService chatgptService;
     // private final GptAnswerDataRepository gptAdRepo;
+    private final GptEmotionDataRepository emoRepo;
 
     public List<String> getAnswer(Long stage, Long set, Long id, String uAns) {
 //        List<GptAnswerData> gptAnswerData = gptAdRepo.findAllByStageAndSetAndLineId(stage, set, id);
@@ -88,4 +96,42 @@ public class GptService {
 
         return responseList;
     }
+
+    @Transactional
+    public ResponseEntity<?> getEmotion(Long stageId, Long setId, String userAnswer) {
+        List<GptEmotionData> emoList = emoRepo.findAllByStageAndSet(stageId, setId);
+        StringBuilder emoStringBuilder = new StringBuilder();
+        for (GptEmotionData emoData : emoList) {
+            emoStringBuilder.append(emoData.getEmotion());
+            emoStringBuilder.append(", ");
+        }
+        String emoString = emoStringBuilder.toString();
+        emoString = emoString.substring(0, emoString.length() - 2);
+
+        String prompt = "아래 문장은 반려동물을 잃은 사람이 반려동물과의 기억을 회상하며 한 말이다.\n"
+                + "\n"
+                + "\"" + userAnswer + "\"\n"
+                + "\n"
+                + "이 사람의 감정을 " + emoString + " 중에서 골라 다음의 답변 양식으로 답하시오.\n"
+                + "\n"
+                + "답변 양식:\n"
+                + "감지된 감정은 ~입니다.";
+
+        log.info("* * * GptService: Prompt has been created.");
+        log.info(prompt);
+
+        String result = chatgptService.sendMessage(prompt);
+
+        log.info("* * * GptService: Successfully received GPT result.");
+        log.info(result);
+
+        for (GptEmotionData emoData : emoList) {
+            String emotion = emoData.getEmotion();
+            if (result.contains(emotion))
+                return new ResponseEntity<EmotionResponseDto>(new EmotionResponseDto(emotion), HttpStatus.OK);
+        }
+
+        return new ResponseEntity<ErrorMessage>(new ErrorMessage(502, "Could not catch emotion.."), HttpStatus.BAD_GATEWAY);
+    }
+
 }
