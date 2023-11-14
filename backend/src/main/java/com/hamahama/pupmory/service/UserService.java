@@ -3,6 +3,7 @@ package com.hamahama.pupmory.service;
 import com.hamahama.pupmory.domain.user.ServiceUser;
 import com.hamahama.pupmory.domain.user.ServiceUserRepository;
 import com.hamahama.pupmory.dto.memorial.PostRequestDto;
+import com.hamahama.pupmory.dto.user.ConversationStatusUpdateDto;
 import com.hamahama.pupmory.dto.user.UserInfoUpdateDto;
 import com.hamahama.pupmory.pojo.ErrorMessage;
 import com.hamahama.pupmory.util.S3Uploader;
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Queue-ri
@@ -33,6 +35,33 @@ public class UserService {
     @Transactional
     public ServiceUser getUserInfo(String uuid) {
         return userRepo.findByUserUid(uuid);
+    }
+
+    @Transactional
+    public ResponseEntity<?> setUserConversationStatus(String uid, ConversationStatusUpdateDto dto) {
+        ServiceUser user = userRepo.findById(uid).get();
+        String currentStatus = user.getConversationStatus();
+
+        switch (dto.getConversationStatus()) {
+            // 인트로
+            case "0":  user.setConversationStatus("1"); break;
+            // 초기
+            case "1A": user.setConversationStatus(Objects.equals(currentStatus, "1B") ? "2": "1A"); break;
+            case "1B": user.setConversationStatus(Objects.equals(currentStatus, "1A") ? "2": "1B"); break;
+            // 중기
+            case "2A": user.setConversationStatus(Objects.equals(currentStatus, "2B") ? "3": "2A"); break;
+            case "2B": user.setConversationStatus(Objects.equals(currentStatus, "2A") ? "3": "2B"); break;
+            // 후기
+            case "3": user.setConversationStatus("4"); break;
+            // 종결기
+            case "4": user.setConversationStatus("-1"); break; // end
+            // invalid case
+            default: return new ResponseEntity<ErrorMessage>(new ErrorMessage(400, "Invalid status code."), HttpStatus.BAD_REQUEST);
+        }
+
+        user.setNextConversationAt(dto.getNextConversationAt());
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Transactional
