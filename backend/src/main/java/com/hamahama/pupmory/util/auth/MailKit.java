@@ -41,7 +41,7 @@ public class MailKit {
         MimeMessage message = mailSender.createMimeMessage();
         message.addRecipients(MimeMessage.RecipientType.TO, email); // 받는 주소
         message.setSubject("기억할개 회원가입 인증 코드"); // 제목
-        message.setFrom(MAIL_USERNAME); // 보내는 주소
+        message.setFrom("기억할개 <" + MAIL_USERNAME + ">"); // 보내는 주소
         message.setText(setContext(code), "utf-8", "html");
 
         return message;
