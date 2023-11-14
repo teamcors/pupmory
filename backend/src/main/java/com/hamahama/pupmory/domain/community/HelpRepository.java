@@ -15,6 +15,9 @@ public interface HelpRepository extends JpaRepository<Help, Long> {
     List<Help> findAllByFromUserUid(@Param("fromUserUid") String uid);
     List<Help> findAllByToUserUid(@Param("toUserUid") String uid);
 
+    @Query("SELECT COUNT(*) FROM Help h WHERE h.toUserUid = :toUserUid AND h.answer IS NOT NULL")
+    Long countAllToUserAnswer(@Param("toUserUid") String uid);
+
     @Query("SELECT DISTINCT h.fromUserUid FROM Help h WHERE h.toUserUid = :toUserUid AND h.answer IS NOT NULL")
     List<String> findDistinctFromUser(@Param("toUserUid") String uid);
 }

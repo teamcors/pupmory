@@ -4,6 +4,7 @@ import com.hamahama.pupmory.domain.user.ServiceUser;
 import com.hamahama.pupmory.domain.user.ServiceUserRepository;
 import com.hamahama.pupmory.dto.memorial.PostRequestDto;
 import com.hamahama.pupmory.dto.user.ConversationStatusUpdateDto;
+import com.hamahama.pupmory.dto.user.UserInfoResponseDto;
 import com.hamahama.pupmory.dto.user.UserInfoUpdateDto;
 import com.hamahama.pupmory.pojo.ErrorMessage;
 import com.hamahama.pupmory.util.S3Uploader;
@@ -30,11 +31,14 @@ import java.util.Objects;
 @Slf4j
 public class UserService {
     private final ServiceUserRepository userRepo;
+    private final CommunityService communityService;
     private final S3Uploader s3Uploader;
 
     @Transactional
-    public ServiceUser getUserInfo(String uuid) {
-        return userRepo.findByUserUid(uuid);
+    public UserInfoResponseDto getUserInfo(String uid) {
+        Long helpCount = communityService.getHelpCount(uid);
+        ServiceUser user = userRepo.findByUserUid(uid);
+        return UserInfoResponseDto.of(user, helpCount);
     }
 
     @Transactional

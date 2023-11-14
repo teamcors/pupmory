@@ -4,6 +4,7 @@ import com.hamahama.pupmory.domain.user.ServiceUser;
 import com.hamahama.pupmory.dto.*;
 import com.hamahama.pupmory.dto.memorial.PostRequestDto;
 import com.hamahama.pupmory.dto.user.ConversationStatusUpdateDto;
+import com.hamahama.pupmory.dto.user.UserInfoResponseDto;
 import com.hamahama.pupmory.dto.user.UserInfoUpdateDto;
 import com.hamahama.pupmory.service.ConversationService;
 import com.hamahama.pupmory.service.UserService;
@@ -37,7 +38,7 @@ public class UserController {
     }
 
     @GetMapping("/info")
-    public ServiceUser getUserInfo(@RequestHeader("Authorization") String token){
+    public UserInfoResponseDto getUserInfo(@RequestHeader("Authorization") String token){
         String uid = jwtKit.validate(token);
         return userService.getUserInfo(uid);
     }
