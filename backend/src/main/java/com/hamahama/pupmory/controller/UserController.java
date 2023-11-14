@@ -3,6 +3,8 @@ package com.hamahama.pupmory.controller;
 import com.hamahama.pupmory.domain.user.ServiceUser;
 import com.hamahama.pupmory.dto.*;
 import com.hamahama.pupmory.dto.memorial.PostRequestDto;
+import com.hamahama.pupmory.dto.user.ConversationStatusUpdateDto;
+import com.hamahama.pupmory.dto.user.UserInfoResponseDto;
 import com.hamahama.pupmory.dto.user.UserInfoUpdateDto;
 import com.hamahama.pupmory.service.ConversationService;
 import com.hamahama.pupmory.service.UserService;
@@ -36,9 +38,15 @@ public class UserController {
     }
 
     @GetMapping("/info")
-    public ServiceUser getUserInfo(@RequestHeader("Authorization") String token){
+    public UserInfoResponseDto getUserInfo(@RequestHeader("Authorization") String token){
         String uid = jwtKit.validate(token);
         return userService.getUserInfo(uid);
+    }
+
+    @PutMapping("/conversation-status")
+    public ResponseEntity<?> setUserConversationStatus(@RequestHeader("Authorization") String token, @RequestBody ConversationStatusUpdateDto dto){
+        String uid = jwtKit.validate(token);
+        return userService.setUserConversationStatus(uid, dto);
     }
 
     // 메모리얼에서 프로필 수정

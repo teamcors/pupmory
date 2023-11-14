@@ -77,6 +77,11 @@ public class CommunityService {
 
         return null; // refactor later
     }
+
+    @Transactional
+    public Long getHelpCount(String uid) {
+        return helpRepo.countAllToUserAnswer(uid);
+    }
     
     @Transactional
     public List<HelpResponseDto> getAllHelp(String uid, String type) {
@@ -121,9 +126,6 @@ public class CommunityService {
             help.setAnswer(dto.getContent());
             help.setAnsweredAt(LocalDateTime.now());
             help.setIsFromUserReadAnswer(1);
-            ServiceUser user = userRepo.findByUserUid(uid);
-            user.setHelpCount(user.getHelpCount() + 1); // 도움 이력 카운트 반영
-
             saveWordCloudExec(uid, dto.getContent());
         }
         else {

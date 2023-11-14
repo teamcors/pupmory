@@ -70,7 +70,7 @@ public class MemorialService {
 
         for (Post post : posts) {
             ServiceUser user = userRepo.findByUserUid(post.getUserUid());
-            FeedPostResponseDto dto = new FeedPostResponseDto(post.getId(), post.getUserUid(), user.getNickname(), user.getProfileImage(), post.getImage(), post.getTitle(), post.getCreatedAt());
+            FeedPostResponseDto dto = FeedPostResponseDto.of(post, user);
             feeds.add(dto);
         }
 
@@ -88,7 +88,7 @@ public class MemorialService {
 
         for (Post post : posts) {
             ServiceUser user = userRepo.findByUserUid(post.getUserUid());
-            FeedPostResponseDto dto = new FeedPostResponseDto(post.getId(), post.getUserUid(), user.getNickname(), user.getProfileImage(), post.getImage(), post.getTitle(), post.getCreatedAt());
+            FeedPostResponseDto dto = FeedPostResponseDto.of(post, user);
             feeds.add(dto);
         }
 

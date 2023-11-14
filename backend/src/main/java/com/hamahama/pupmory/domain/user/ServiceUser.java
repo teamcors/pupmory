@@ -3,10 +3,14 @@ package com.hamahama.pupmory.domain.user;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.Id;
+import java.time.LocalDate;
 
 /**
  * @author Queue-ri
@@ -14,6 +18,7 @@ import javax.persistence.Id;
  */
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Builder
 @Getter
 @Setter
@@ -39,12 +44,10 @@ public class ServiceUser {
     private Integer puppyAge;
 
     @ColumnDefault("0")
-    private Integer conversationStatus;
+    private String conversationStatus;
 
-    @ColumnDefault("0")
-    private Integer helpCount;
+    private String nextConversationAt;
 
-    // deprecated
-    @ColumnDefault("1")
-    private Integer memoryCount;
+    @CreatedDate
+    private LocalDate registrationDate;
 }
