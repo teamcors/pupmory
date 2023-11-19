@@ -207,7 +207,7 @@ public class CommunityService {
         Process p = pb.start();
         int exitval = p.waitFor();
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream(), "EUC-KR"));
+        BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8));
 
         // read the stdout of the subprocess
         StringBuilder result = new StringBuilder();
