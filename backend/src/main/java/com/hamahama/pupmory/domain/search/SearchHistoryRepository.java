@@ -10,4 +10,5 @@ public interface SearchHistoryRepository extends JpaRepository<SearchHistory, Lo
     SearchHistory findOneByUserUidAndKeyword(@Param("userUid") String uuid, @Param("keyword") String keyword);
     void deleteByUserUidAndKeyword(@Param("userUid") String uuid, @Param("keyword") String keyword);
     SearchHistory findSearchHistoryByUserUidAndKeyword(@Param("userUid") String uuid, @Param("keyword") String keyword);
+    void deleteAllByUserUid(String userUid);
 }

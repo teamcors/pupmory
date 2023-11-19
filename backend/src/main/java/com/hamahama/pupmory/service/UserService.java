@@ -1,8 +1,13 @@
 package com.hamahama.pupmory.service;
 
+import com.hamahama.pupmory.domain.community.HelpRepository;
+import com.hamahama.pupmory.domain.community.WordCloudRepository;
+import com.hamahama.pupmory.domain.memorial.CommentRepository;
+import com.hamahama.pupmory.domain.memorial.PostRepository;
+import com.hamahama.pupmory.domain.memorial.UserLikeRepository;
+import com.hamahama.pupmory.domain.search.SearchHistoryRepository;
 import com.hamahama.pupmory.domain.user.ServiceUser;
 import com.hamahama.pupmory.domain.user.ServiceUserRepository;
-import com.hamahama.pupmory.dto.memorial.PostRequestDto;
 import com.hamahama.pupmory.dto.user.ConversationStatusUpdateDto;
 import com.hamahama.pupmory.dto.user.UserInfoResponseDto;
 import com.hamahama.pupmory.dto.user.UserInfoUpdateDto;
@@ -31,6 +36,12 @@ import java.util.Objects;
 @Slf4j
 public class UserService {
     private final ServiceUserRepository userRepo;
+    private final PostRepository postRepo;
+    private final CommentRepository commentRepo;
+    private final HelpRepository helpRepo;
+    private final UserLikeRepository ulikeRepo;
+    private final SearchHistoryRepository historyRepo;
+    private final WordCloudRepository wcloudRepo;
     private final CommunityService communityService;
     private final S3Uploader s3Uploader;
 
@@ -90,6 +101,24 @@ public class UserService {
         user.setPuppyName(dto.getPuppyName());
         user.setPuppyAge(dto.getPuppyAge());
         user.setPuppyType(dto.getPuppyType());
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Transactional
+    public ResponseEntity<?> deleteAccount(String uid) {
+        try {
+            commentRepo.deleteAllByUserUid(uid);
+            ulikeRepo.deleteAllByUserUid(uid);
+            postRepo.deleteAllByUserUid(uid);
+            historyRepo.deleteAllByUserUid(uid);
+            helpRepo.deleteAllByUserUid(uid);
+            wcloudRepo.deleteByUserUid(uid);
+            userRepo.deleteById(uid);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return new ResponseEntity<ErrorMessage>(new ErrorMessage(500, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
