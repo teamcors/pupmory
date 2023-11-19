@@ -38,7 +38,8 @@ public class MemorialService {
     @Transactional
     public PostDetailResponseDto getPost(Long id) {
         Post post = postRepo.findById(id).get();
-        return PostDetailResponseDto.of(post);
+        Long likeCount = likeRepo.countByPostId(id);
+        return PostDetailResponseDto.of(post, likeCount);
     }
 
     @Transactional
