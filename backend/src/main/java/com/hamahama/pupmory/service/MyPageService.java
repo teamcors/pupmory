@@ -1,9 +1,16 @@
 package com.hamahama.pupmory.service;
 
+import com.hamahama.pupmory.domain.memorial.Comment;
+import com.hamahama.pupmory.domain.memorial.CommentRepository;
+import com.hamahama.pupmory.domain.memorial.Post;
+import com.hamahama.pupmory.domain.memorial.PostRepository;
 import com.hamahama.pupmory.domain.mypage.Announcement;
 import com.hamahama.pupmory.domain.mypage.AnnouncementRepository;
+import com.hamahama.pupmory.domain.user.ServiceUser;
+import com.hamahama.pupmory.domain.user.ServiceUserRepository;
 import com.hamahama.pupmory.dto.mypage.AnnouncementDetailDto;
 import com.hamahama.pupmory.dto.mypage.AnnouncementMetaDto;
+import com.hamahama.pupmory.dto.mypage.CommentMetaDto;
 import com.hamahama.pupmory.pojo.ErrorMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +33,9 @@ import java.util.Optional;
 @Slf4j
 public class MyPageService {
     private final AnnouncementRepository anRepo;
+    private final CommentRepository commentRepo;
+    private final PostRepository postRepo;
+    private final ServiceUserRepository userRepo;
 
     @Transactional
     public List<AnnouncementMetaDto> getAllAnnouncementMeta() {
@@ -48,6 +58,20 @@ public class MyPageService {
         }
         else
             return new ResponseEntity<ErrorMessage>(new ErrorMessage(404, "no data found."), HttpStatus.NOT_FOUND);
+    }
+
+    @Transactional
+    public List<CommentMetaDto> getAllCommentMeta(String uid) {
+        List<Comment> commentList = commentRepo.findAllByUserUid(uid);
+        List<CommentMetaDto> dtoList = new ArrayList<>();
+
+        for(Comment comment : commentList) {
+            Post post = postRepo.findById(comment.getPostId()).get();
+            ServiceUser user = userRepo.findById(post.getUserUid()).get();
+            dtoList.add(CommentMetaDto.of(comment, user.getNickname()));
+        }
+
+        return dtoList;
     }
 
 }
