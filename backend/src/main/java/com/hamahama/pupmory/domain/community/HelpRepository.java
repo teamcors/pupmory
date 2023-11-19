@@ -1,6 +1,7 @@
 package com.hamahama.pupmory.domain.community;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -20,4 +21,8 @@ public interface HelpRepository extends JpaRepository<Help, Long> {
 
     @Query("SELECT DISTINCT h.fromUserUid FROM Help h WHERE h.toUserUid = :toUserUid AND h.answer IS NOT NULL")
     List<String> findDistinctFromUser(@Param("toUserUid") String uid);
+
+    @Modifying
+    @Query("DELETE FROM Help h WHERE h.fromUserUid = :uid OR h.toUserUid = :uid")
+    void deleteAllByUserUid(@Param("uid") String userUid);
 }

@@ -8,4 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 
 public interface WordCloudRepository extends JpaRepository<WordCloud, String> {
+    void deleteByUserUid(String userUid);
 }

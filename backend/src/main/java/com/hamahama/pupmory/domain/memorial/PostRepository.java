@@ -40,4 +40,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findFilteredFeedByBoth(@Param("userUid") String uuid, @Param("puppyType") String type, @Param("puppyAge") Integer age);
 
     List<Post> findByTitleContainingOrContentContaining(@Param("title") String titleKeyword, @Param("content") String contentKeyword);
+
+    void deleteAllByUserUid(String userUid);
 }

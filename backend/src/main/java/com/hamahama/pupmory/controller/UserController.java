@@ -59,4 +59,11 @@ public class UserController {
         String uid = jwtKit.validate(token);
         return userService.updateUserInfo(uid, dto, mfile);
     }
+
+    // 회원탈퇴
+    @DeleteMapping("/account")
+    public ResponseEntity<?> deleteAccount(@RequestHeader("Authorization") String token) {
+        String uid = jwtKit.validate(token);
+        return userService.deleteAccount(uid);
+    }
 }
