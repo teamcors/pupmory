@@ -202,12 +202,15 @@ public class CommunityService {
     // 3트 성공: 하지만 내가 안좋아하는 방식 T^T
     @Transactional
     public void saveWordCloudExec(String uid, String sentence) throws IOException, InterruptedException {
-        String arg = "\"" + sentence + "\"";
-        ProcessBuilder pb = new ProcessBuilder("python3", "wcloud.py", arg);
+        // argument이므로 double quote가 필요하며 json double quote를 사전에 처리해야 함에 유의
+        String arg1 = "\"" + sentence + "\"";
+        String arg2 = "\"" + wCloudRepo.findById(uid).get().getWords().replace("\"", "\\\"") + "\"";
+
+        ProcessBuilder pb = new ProcessBuilder("python3", "wcloud.py", arg1, arg2);
         Process p = pb.start();
         int exitval = p.waitFor();
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream(), "EUC-KR"));
+        BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8));
 
         // read the stdout of the subprocess
         StringBuilder result = new StringBuilder();

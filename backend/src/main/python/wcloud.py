@@ -1,6 +1,10 @@
+#-*-coding:utf-8-*-
+
 import sys
-from collections import Counter
+from collections import defaultdict, Counter
 from konlpy.tag import Okt
+import json
+
 
 sample_text = """
 교육의 자주성·전문성·정치적 중립성 및 대학의 자율성은 법률이 정하는 바에 의하여 보장된다. 헌법재판소는 법률에 저촉되지 아니하는 범위안에서 심판에 관한 절차, 내부규율과 사무처리에 관한 규칙을 제정할 수 있다.
@@ -15,18 +19,49 @@ sample_text = """
 국가는 대외무역을 육성하며, 이를 규제·조정할 수 있다. 헌법재판소는 법관의 자격을 가진 9인의 재판관으로 구성하며, 재판관은 대통령이 임명한다. 모든 국민은 사생활의 비밀과 자유를 침해받지 아니한다.
 """
 
-def generate(sentence):
+def generate(sentence, prev_data):
     okt = Okt()
     nouns = okt.nouns(sentence) # 명사만 추출
 
     words = [n for n in nouns if len(n) > 1] # 단어의 길이가 1개인 것은 제외
     counter = Counter(words) # 위에서 얻은 words를 처리하여 단어별 빈도수 형태의 딕셔너리 데이터를 구함
 
-    json_list = [{'word': key, 'value': value} for key,value in counter.items()]
-    json_list.sort(key = lambda x: x['value'], reverse=True)
+    # 결과를 dictionary로 작성
+    # [{'word': key, 'value': value}] 형태의 dictionary list로 작성하지 않는 이유:
+    # 그렇게 하면 합산할 때 O(N^2)이 됨
+    new_dict = defaultdict(int) # 합산시 존재하지 않는 key는 기본 0에서 시작
+    for key, value in counter.items():
+        new_dict[key] = value
 
-    print(json_list)
+    # 이전 데이터를 dictionary로 파싱
+    # 이전 데이터란 DB에 저장되어있던 데이터로, json list로 저장되어 있음
+    prev_json_list = json.loads(prev_data)
+    prev_dict = {}
+    for jdata in prev_json_list:
+        key, value = list(jdata.values())
+        prev_dict[key] = value
+
+    # 결과 합산
+    for key, value in prev_dict.items():
+        new_dict[key] += value
+
+    # 합산된 dictionary를 내림차순 정렬
+    # This requires Python 3.7+
+    new_dict = dict(sorted(new_dict.items(), key=lambda x: x[1], reverse=True))
+
+    # 정렬한 dictionary를 json list 형태의 string으로 작성
+    # 한글 인코딩을 \u 포맷으로 만들어버리는 문제가 있어 json.dumps()는 사용하지 않음
+    result_str = '['
+    for key, value in new_dict.items():
+        data_str = '{"word": "' + key + '", "value": ' + str(value) + '}, '
+        result_str += data_str
+
+    result_str = result_str[:-2] + ']'
+
+    # 결과 반환
+    # UTF-8 출력 강제
+    sys.stdout.buffer.write(result_str.encode('utf8'))
 
 
 if __name__ == "__main__":
-    generate(sys.argv[1])
+    generate(sys.argv[1], sys.argv[2])
