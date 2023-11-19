@@ -52,4 +52,10 @@ public class SearchController {
         searchService.deleteSearchHistory(uid, keyword);
     }
 
+    @DeleteMapping("history/all")
+    public void deleteSearchHistory(@RequestHeader(value="Authorization") String token) {
+        String uid = jwtKit.validate(token);
+        searchService.deleteAllSearchHistory(uid);
+    }
+
 }

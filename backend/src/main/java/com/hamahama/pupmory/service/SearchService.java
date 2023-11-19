@@ -91,6 +91,11 @@ public class SearchService {
     }
 
     @Transactional
+    public void deleteAllSearchHistory(String uid) {
+        historyRepo.deleteAllByUserUid(uid);
+    }
+
+    @Transactional
     public List<KeywordRank> getKeywordRank() {
         return rankRepo.findTop10ByOrderByCountDescUpdatedAtDesc();
     }
