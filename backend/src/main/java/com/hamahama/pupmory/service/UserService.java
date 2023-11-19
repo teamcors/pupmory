@@ -55,23 +55,27 @@ public class UserService {
     @Transactional
     public ResponseEntity<?> setUserConversationStatus(String uid, ConversationStatusUpdateDto dto) {
         ServiceUser user = userRepo.findById(uid).get();
-        String currentStatus = user.getConversationStatus();
 
-        switch (dto.getConversationStatus()) {
-            // 인트로
-            case "0":  user.setConversationStatus("1"); break;
-            // 초기
-            case "1A": user.setConversationStatus(Objects.equals(currentStatus, "1B") ? "2": "1A"); break;
-            case "1B": user.setConversationStatus(Objects.equals(currentStatus, "1A") ? "2": "1B"); break;
-            // 중기
-            case "2A": user.setConversationStatus(Objects.equals(currentStatus, "2B") ? "3": "2A"); break;
-            case "2B": user.setConversationStatus(Objects.equals(currentStatus, "2A") ? "3": "2B"); break;
-            // 후기
-            case "3": user.setConversationStatus("4"); break;
-            // 종결기
-            case "4": user.setConversationStatus("-1"); break; // end
-            // invalid case
-            default: return new ResponseEntity<ErrorMessage>(new ErrorMessage(400, "Invalid status code."), HttpStatus.BAD_REQUEST);
+        if (dto.getConversationStatus() != null) {
+            String currentStatus = user.getConversationStatus();
+
+            switch (dto.getConversationStatus()) {
+                // 인트로
+                case "0": user.setConversationStatus("1"); break;
+                // 초기
+                case "1A": user.setConversationStatus(Objects.equals(currentStatus, "1B") ? "2" : "1A"); break;
+                case "1B": user.setConversationStatus(Objects.equals(currentStatus, "1A") ? "2" : "1B"); break;
+                // 중기
+                case "2A": user.setConversationStatus(Objects.equals(currentStatus, "2B") ? "3" : "2A"); break;
+                case "2B": user.setConversationStatus(Objects.equals(currentStatus, "2A") ? "3" : "2B"); break;
+                // 후기
+                case "3": user.setConversationStatus("4"); break;
+                // 종결기
+                case "4": user.setConversationStatus("-1"); break; // end
+                // invalid case
+                default:
+                    return new ResponseEntity<ErrorMessage>(new ErrorMessage(400, "Invalid status code."), HttpStatus.BAD_REQUEST);
+            }
         }
 
         user.setNextConversationAt(dto.getNextConversationAt());
