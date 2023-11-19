@@ -28,10 +28,11 @@ public class PostDetailResponseDto {
     private String place;
     private String content;
     private String hashtag;
+    private Long likes;
     private boolean isPrivate;
     private LocalDateTime createdAt;
 
-    public static PostDetailResponseDto of(Post post) {
+    public static PostDetailResponseDto of(Post post, Long likeCount) {
         List<String> imageList = Arrays.asList(post.getImage().split("\\s*,\\s*"));
 
         // https://stackoverflow.com/questions/42619986/lombok-annotation-getter-for-boolean-field
@@ -44,6 +45,7 @@ public class PostDetailResponseDto {
                 .place(post.getPlace())
                 .content(post.getContent())
                 .hashtag(post.getHashtag())
+                .likes(likeCount)
                 .isPrivate(post.isPrivate())
                 .createdAt(post.getCreatedAt())
                 .build();
