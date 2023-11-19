@@ -5,6 +5,7 @@ import com.hamahama.pupmory.dto.memorial.*;
 import com.hamahama.pupmory.service.MemorialService;
 import com.hamahama.pupmory.util.auth.JwtKit;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,6 +38,12 @@ public class MemorialController {
     public PostDetailResponseDto getPost(@RequestHeader(value="Authorization") String token, @RequestParam Long postId) {
         String uid = jwtKit.validate(token);
         return memorialService.getPost(postId);
+    }
+
+    @RequestMapping(method=RequestMethod.DELETE)
+    public ResponseEntity<?> deletePost(@RequestHeader(value="Authorization") String token, @RequestParam Long postId) {
+        String uid = jwtKit.validate(token);
+        return memorialService.deletePost(uid, postId);
     }
 
     @GetMapping("/all")
@@ -81,5 +88,11 @@ public class MemorialController {
     public void saveComment(@RequestHeader(value="Authorization") String token, @RequestParam Long postId, @RequestBody CommentRequestDto dto) {
         String uid = jwtKit.validate(token);
         memorialService.saveComment(uid, postId, dto);
+    }
+
+    @DeleteMapping("/comment")
+    public ResponseEntity<?> deleteComment(@RequestHeader(value="Authorization") String token, @RequestParam Long commentId) {
+        String uid = jwtKit.validate(token);
+        return memorialService.deleteComment(uid, commentId);
     }
 }

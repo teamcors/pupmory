@@ -4,10 +4,13 @@ import com.hamahama.pupmory.domain.memorial.*;
 import com.hamahama.pupmory.domain.user.*;
 import com.hamahama.pupmory.domain.user.ServiceUserRepository;
 import com.hamahama.pupmory.dto.memorial.*;
+import com.hamahama.pupmory.pojo.ErrorMessage;
 import com.hamahama.pupmory.pojo.PostMeta;
 import com.hamahama.pupmory.util.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,6 +39,28 @@ public class MemorialService {
     public PostDetailResponseDto getPost(Long id) {
         Post post = postRepo.findById(id).get();
         return PostDetailResponseDto.of(post);
+    }
+
+    @Transactional
+    public ResponseEntity<?> deletePost(String uid, Long postId) {
+        Optional<Post> optPost = postRepo.findById(postId);
+
+        if (optPost.isPresent()) {
+            // check if requester == OP
+            String opUid = optPost.get().getUserUid();
+
+            if (opUid.equals(uid)) {
+                commentRepo.deleteAllByPostId(postId); // 해당 글의 댓글 전부 삭제
+                postRepo.deleteById(postId);
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
+            else {
+                return new ResponseEntity<ErrorMessage>(new ErrorMessage(403, "You do not have permission to delete this post."), HttpStatus.FORBIDDEN);
+            }
+        }
+        else {
+            return new ResponseEntity<ErrorMessage>(new ErrorMessage(404, "Could not find the post."), HttpStatus.NOT_FOUND);
+        }
     }
 
     @Transactional
@@ -146,5 +171,26 @@ public class MemorialService {
     @Transactional
     public void saveComment(String uid, Long postId, CommentRequestDto dto) {
         commentRepo.save(dto.toEntity(uid, postId));
+    }
+
+    @Transactional
+    public ResponseEntity<?> deleteComment(String uid, Long cid) {
+        Optional<Comment> optComment = commentRepo.findById(cid);
+
+        if (optComment.isPresent()) {
+            // check if requester == OP
+            String opUid = optComment.get().getUserUid();
+
+            if (opUid.equals(uid)) {
+                commentRepo.deleteById(cid);
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
+            else {
+                return new ResponseEntity<ErrorMessage>(new ErrorMessage(403, "You do not have permission to delete this comment."), HttpStatus.FORBIDDEN);
+            }
+        }
+        else {
+            return new ResponseEntity<ErrorMessage>(new ErrorMessage(404, "Could not find the comment."), HttpStatus.NOT_FOUND);
+        }
     }
 }
