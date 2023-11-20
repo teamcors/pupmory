@@ -1,1 +1,66 @@
+spring:
+  jpa:
+    database: postgresql
+    hibernate:
+      ddl-auto: update # no overwrite / auto create
+    show-sql: true
 
+  datasource:
+    url: 
+    username: 
+    password: 
+    driver-class-name: org.postgresql.Driver
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: 
+    password: 
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: true
+          auth: true
+
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+    check-template-location: true
+    cache: false
+
+server:
+  servlet:
+    multipart:
+      maxFileSize: 20MB # 개별 파일의 사이즈 제한
+      maxRequestSize: 180MB # 한 request의 사이즈 제한
+
+chatgpt:
+  api-key: 
+  url: https://api.openai.com/v1/chat/completions
+  model: gpt-3.5-turbo
+  temperature: 0.5
+
+cloud:
+  aws:
+    region: # s3 하위에 넣으면 작동 안함 (EC2 metadata error 발생)
+      static: 
+    s3:
+      bucket: 
+      credentials:
+        accessKey: 
+        secretKey: 
+    stack:
+      auto: false
+
+jwt:
+  secret:
+
+logging:
+  level:
+    com:
+      amazonaws:
+        util:
+          EC2MetadataUtils: error

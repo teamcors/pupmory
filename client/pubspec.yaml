@@ -1,0 +1,48 @@
+name: client
+description: A new Flutter project.
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=2.19.6 <3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cloud_firestore: ^4.7.0
+  custom_navigation_bar: ^0.8.2
+  firebase_auth: ^4.6.0
+  firebase_core: ^2.12.0
+  cupertino_icons: ^1.0.2
+  google_sign_in: ^6.1.0
+  http: ^0.13.6
+  flutter_native_splash: ^2.2.19
+  change_app_package_name: ^1.1.0
+
+#  assets:
+#    - images/conversation_button.png
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/conversation_button.png
+    - assets/images/illust_test.png
+    - assets/images/background_test.png
+    - assets/images/left_arrow.png
+    - assets/images/dog_test.png
+    - assets/images/pupmory_logo.png
+    - assets/images/dog_gallery.png
+    - assets/images/badge_check.png
+    - assets/images/help_button.png
+    - assets/images/help_request_button.png
+    - assets/images/con1_button.png
+    - assets/images/home_right_arrow.png
+    - assets/images/proto_recommend1.png
+
+
