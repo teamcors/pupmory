@@ -20,6 +20,10 @@ sample_text = """
 """
 
 def generate(sentence, prev_data):
+    # logging inputs
+    sys.stderr.reconfigure(encoding="utf-8")
+    sys.stderr.write('prev_data: ' + prev_data)
+
     okt = Okt()
     nouns = okt.nouns(sentence) # 명사만 추출
 
