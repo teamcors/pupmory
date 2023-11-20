@@ -203,8 +203,9 @@ public class CommunityService {
     @Transactional
     public void saveWordCloudExec(String uid, String sentence) throws IOException, InterruptedException {
         // argument이므로 double quote가 필요하며 json double quote를 사전에 처리해야 함에 유의
+        // platform에 따라 되기도 안되기도 해서 도커 환경 권장 (windows, ubuntu)
         String arg1 = "\"" + sentence + "\"";
-        String arg2 = "\"" + wCloudRepo.findById(uid).get().getWords().replace("\"", "\\\"") + "\"";
+        String arg2 = wCloudRepo.findById(uid).get().getWords();
 
         ProcessBuilder pb = new ProcessBuilder("python3", "wcloud.py", arg1, arg2);
         Process p = pb.start();
