@@ -50,7 +50,7 @@ public class MemorialController {
     }
 
     @GetMapping("guest/all")
-    public PostAllResponseDto getOthersAllPost(@RequestAttribute("uid") String uid, @RequestParam String targetUid) {
+    public PostAllResponseDto getOthersAllPost(@RequestParam String targetUid) {
         // uid를 필요로 하진 않지만 validate해야 함
         return memorialService.getOthersAllPost(targetUid);
     }

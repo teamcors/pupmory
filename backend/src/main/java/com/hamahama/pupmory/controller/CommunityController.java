@@ -67,7 +67,7 @@ public class CommunityController {
     }
 
     @GetMapping("/wcloud")
-    public List<WordCount> getWordCloud(@RequestAttribute("uid") String uid, @RequestParam String targetUid) throws JsonProcessingException {
+    public List<WordCount> getWordCloud(@RequestParam String targetUid) throws JsonProcessingException {
         // uid를 필요로 하진 않지만 validate해야 함
         return communityService.getWordCloud(targetUid);
     }
