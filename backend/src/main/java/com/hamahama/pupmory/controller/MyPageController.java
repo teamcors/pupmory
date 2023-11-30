@@ -1,5 +1,6 @@
 package com.hamahama.pupmory.controller;
 
+import com.hamahama.pupmory.conf.NoAuth;
 import com.hamahama.pupmory.dto.mypage.AnnouncementMetaDto;
 import com.hamahama.pupmory.dto.mypage.CommentMetaDto;
 import com.hamahama.pupmory.service.MyPageService;
@@ -20,21 +21,21 @@ import java.util.List;
 @RequestMapping("mypage")
 public class MyPageController {
     private final MyPageService myPageService;
-    private final JwtKit jwtKit;
 
     @GetMapping("/announcement/all")
+    @NoAuth
     public List<AnnouncementMetaDto> getAllAnnouncementMeta() {
         return myPageService.getAllAnnouncementMeta();
     }
 
     @GetMapping("/announcement")
+    @NoAuth
     public ResponseEntity<?> getAnnouncementDetail(@RequestParam Long aid) {
         return myPageService.getAnnouncementDetail(aid);
     }
 
     @GetMapping("/comment/all")
-    public List<CommentMetaDto> getAllCommentMeta(@RequestHeader(value="Authorization") String token) {
-        String uid = jwtKit.validate(token);
+    public List<CommentMetaDto> getAllCommentMeta(@RequestAttribute("uid") String uid) {
         return myPageService.getAllCommentMeta(uid);
     }
 }
