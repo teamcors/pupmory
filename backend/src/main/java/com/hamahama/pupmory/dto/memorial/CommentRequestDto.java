@@ -1,6 +1,7 @@
 package com.hamahama.pupmory.dto.memorial;
 
 import com.hamahama.pupmory.domain.memorial.Comment;
+import com.hamahama.pupmory.domain.user.ServiceUser;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,10 +17,9 @@ import lombok.NoArgsConstructor;
 public class CommentRequestDto {
     private String content;
 
-    public Comment toEntity(String uid, Long postId) {
+    public Comment toEntity(ServiceUser user) {
         return Comment.builder()
-                .userUid(uid)
-                .postId(postId)
+                .user(user)
                 .content(content)
                 .build();
     }

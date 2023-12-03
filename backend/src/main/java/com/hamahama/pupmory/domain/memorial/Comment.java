@@ -1,5 +1,6 @@
 package com.hamahama.pupmory.domain.memorial;
 
+import com.hamahama.pupmory.domain.user.ServiceUser;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,11 +22,16 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String userUid;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_uid")
+    private ServiceUser user;
 
-    @Column(nullable = false)
-    private Long postId;
+//    @Column(nullable = false)
+//    private Long postId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
+    private Post post;
 
     @Column(nullable = false)
     private String content;
