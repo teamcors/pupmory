@@ -25,6 +25,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,6 +56,9 @@ public class CommunityService {
     private final WordCloudRepository wCloudRepo;
     private final ObjectMapper objectMapper;
 
+    @Autowired
+    RabbitTemplate rabbitTemplate;
+
     @Transactional
     public void saveHelp(String uid, HelpSaveRequestDto dto) {
         helpRepo.save(dto.toEntity(uid));
@@ -62,7 +67,7 @@ public class CommunityService {
     @Transactional
     public Help getHelp(String uid, Long hid) {
         Help help = helpRepo.findById(hid).get();
-        
+
         // 도움 내역은 요청자 또는 요청받은자만 열람 가능
         if (help.getFromUserUid().equals(uid) || help.getToUserUid().equals(uid)) {
             // 답변이 있는데 요청자가 읽으면 읽음 처리
@@ -70,8 +75,7 @@ public class CommunityService {
                 help.setIsFromUserReadAnswer(2); // help answer is read by user
             }
             return help;
-        }
-        else {
+        } else {
             // 4xx error
         }
 
@@ -82,7 +86,7 @@ public class CommunityService {
     public Long getHelpCount(String uid) {
         return helpRepo.countAllToUserAnswer(uid);
     }
-    
+
     @Transactional
     public List<HelpResponseDto> getAllHelp(String uid, String type) {
         List<Help> helpList;
@@ -126,9 +130,9 @@ public class CommunityService {
             help.setAnswer(dto.getContent());
             help.setAnsweredAt(LocalDateTime.now());
             help.setIsFromUserReadAnswer(1);
-            saveWordCloudExec(uid, dto.getContent());
-        }
-        else {
+            //saveWordCloudExec(uid, dto.getContent());
+            publishWcGenMessage(uid, dto.getContent());
+        } else {
             // 4xx 에러 핸들링
         }
     }
@@ -168,7 +172,7 @@ public class CommunityService {
                 log.error("* * * Wordcloud Error: " + res.getStatusLine().getStatusCode());
             }
 
-        } catch (Exception e){
+        } catch (Exception e) {
             log.error(e.toString());
         }
     }
@@ -230,8 +234,7 @@ public class CommunityService {
             byte[] buf = new byte[len];
             p.getErrorStream().read(buf);
             log.error(new String(buf));
-        }
-        else {
+        } else {
             String data = result.toString();
             log.info("* * * saveWordCloudExec(): 워드클라우드 생성이 완료되었습니다.");
             log.info(data);
@@ -240,17 +243,33 @@ public class CommunityService {
         }
     }
 
+    // 4트: RabbitMQ 메시지 발행
+    @Transactional
+    public void publishWcGenMessage(String uid, String sentence) {
+        Optional<WordCloud> optWCloud = wCloudRepo.findById(uid);
+        String prevList;
+
+        // 워드클라우드 DB로부터 이전 워드클라우드 데이터 가져오기
+        if (optWCloud.isPresent()) prevList = optWCloud.get().getWords();
+        else prevList = "[]";
+
+        // wcloud.py에 워드클라우드 데이터 연산 요청 (rpc)
+        log.info("* * * 워드클라우드 연산 요청: {}", sentence);
+        rabbitTemplate.convertAndSend("pupmory.wcgen.exchange", "pupmory.wcgen", sentence);
+    }
+
     @Transactional
     public List<WordCount> getWordCloud(String uid) throws JsonProcessingException {
         Optional<WordCloud> optWCloud = wCloudRepo.findById(uid);
 
-        if(optWCloud.isPresent()) {
+        if (optWCloud.isPresent()) {
             WordCloud wCloud = optWCloud.get();
             String words = wCloud.getWords();
             ObjectMapper mapper = new ObjectMapper();
             // single quote는 json 비표준이나, 현 코드에선 python dictionary를 파싱하는 것이므로 ㄱㅊ
             mapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
-            List<WordCount> wCList = mapper.readValue(words, new TypeReference<List<WordCount>>(){});
+            List<WordCount> wCList = mapper.readValue(words, new TypeReference<List<WordCount>>() {
+            });
 
             return wCList;
         }
