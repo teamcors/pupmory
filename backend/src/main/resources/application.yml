@@ -6,16 +6,16 @@ spring:
     show-sql: true
 
   datasource:
-    url: 
-    username: 
-    password: 
+    url:
+    username:
+    password:
     driver-class-name: org.postgresql.Driver
 
   mail:
     host: smtp.gmail.com
     port: 587
-    username: 
-    password: 
+    username:
+    password:
     properties:
       mail:
         smtp:
@@ -31,6 +31,13 @@ spring:
     check-template-location: true
     cache: false
 
+  #RabbitMQ
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username:
+    password:
+
 server:
   servlet:
     multipart:
@@ -38,7 +45,7 @@ server:
       maxRequestSize: 180MB # 한 request의 사이즈 제한
 
 chatgpt:
-  api-key: 
+  api-key:
   url: https://api.openai.com/v1/chat/completions
   model: gpt-3.5-turbo
   temperature: 0.5
@@ -46,12 +53,12 @@ chatgpt:
 cloud:
   aws:
     region: # s3 하위에 넣으면 작동 안함 (EC2 metadata error 발생)
-      static: 
+      static:
     s3:
-      bucket: 
+      bucket:
       credentials:
-        accessKey: 
-        secretKey: 
+        accessKey:
+        secretKey:
     stack:
       auto: false
 
