@@ -4,6 +4,7 @@ import sys
 from collections import defaultdict, Counter
 from konlpy.tag import Okt
 import json
+from pika import BlockingConnection, BasicProperties
 
 
 sample_text = """
@@ -18,6 +19,19 @@ sample_text = """
 대통령의 선거에 관한 사항은 법률로 정한다. 대법원은 법률에 저촉되지 아니하는 범위안에서 소송에 관한 절차, 법원의 내부규율과 사무처리에 관한 규칙을 제정할 수 있다.
 국가는 대외무역을 육성하며, 이를 규제·조정할 수 있다. 헌법재판소는 법관의 자격을 가진 9인의 재판관으로 구성하며, 재판관은 대통령이 임명한다. 모든 국민은 사생활의 비밀과 자유를 침해받지 아니한다.
 """
+
+def on_wcgen_published(channel, method_frame, header_frame, body):
+    label = method_frame.routing_key
+    print('* * * WcGen 메시지 수신')
+    print('label:', label)
+    print('body:', body.decode())
+
+    channel.basic_ack(delivery_tag=method_frame.delivery_tag)
+
+# refactor 후: publishWcGenMessage 방식
+connection = BlockingConnection()
+channel = connection.channel()
+channel.basic_consume(queue='pupmory.wcgen', on_message_callback=on_wcgen_published)
 
 def generate(sentence, prev_data):
     # logging inputs
@@ -68,4 +82,13 @@ def generate(sentence, prev_data):
 
 
 if __name__ == "__main__":
-    generate(sys.argv[1], sys.argv[2])
+    # legacy: saveWordCloudExec 방식
+    # generate(sys.argv[1], sys.argv[2])
+
+    # refactor 후: publishWcGenMessage 방식
+    try:
+        channel.start_consuming()
+    except KeyboardInterrupt:
+        channel.stop_consuming()
+
+    connection.close()
