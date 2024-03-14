@@ -1,6 +1,7 @@
 package com.hamahama.pupmory.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.hamahama.pupmory.conf.NoAuth;
 import com.hamahama.pupmory.domain.community.Help;
 import com.hamahama.pupmory.dto.community.HelpAnswerSaveRequestDto;
 import com.hamahama.pupmory.dto.community.HelpResponseDto;
@@ -9,7 +10,6 @@ import com.hamahama.pupmory.dto.community.WordCloudRequestDto;
 import com.hamahama.pupmory.pojo.HelpLog;
 import com.hamahama.pupmory.pojo.WordCount;
 import com.hamahama.pupmory.service.CommunityService;
-import com.hamahama.pupmory.util.auth.JwtKit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -49,8 +49,10 @@ public class CommunityController {
         return communityService.getHelpLog(targetUid);
     }
 
+    @NoAuth
     @PostMapping("/answer")
-    public void saveHelpAnswer(@RequestAttribute("uid") String uid, @RequestBody HelpAnswerSaveRequestDto dto) throws IOException, InterruptedException {
+    public void saveHelpAnswer(/*@RequestAttribute("uid") String uid, */@RequestBody HelpAnswerSaveRequestDto dto) throws IOException, InterruptedException {
+        String uid = "q"; // test
         communityService.saveHelpAnswer(uid, dto);
     }
 
